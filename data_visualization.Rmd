@@ -5,6 +5,9 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+techs <- read_excel("~/Downloads/techs.xlsx")
+View(techs)
 ```
 
 #TECHS
@@ -127,6 +130,16 @@ data_cif$ID <- as.factor(data_cif$ID)
 library(ggplot2)
 library(reshape2)
 
+data_long <- melt(data_cif, id.vars = "time")
+ggplot(data_cif, aes(x = time, y = cif, color = ID)) +
+  geom_line() +
+  labs(title = "Symptoms across intervention", x = "30 Minute session", y = "Symptom Score")
+
+```
+
+
+```{r}
+#plot differences in pre/post data
 data_long <- melt(data_cif, id.vars = "time")
 ggplot(data_cif, aes(x = time, y = cif, color = ID)) +
   geom_line() +
