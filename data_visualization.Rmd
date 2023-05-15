@@ -1,0 +1,137 @@
+---
+title: "techs"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#TECHS
+```{r}
+techs$age <- as.vector(techs$age)
+ggplot(techs, aes(age, aes(x=age))) +
+  geom_histogram() +
+  geom_col(width = 0.5)
+
+techs %>%
+  ggplot( aes(x=days_since_injury)) +
+    geom_histogram( binwidth=3, fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+    ggtitle("age") +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=15)
+    )
+
+techs$ethnicity <- as.character(techs$ethnicity)
+techs$global06 <- techs$promis_physical_activities
+techs <- read_excel("Documents/Northeastern/CCBH_Lab/Projects/TECHS/IRB/TECHS_DATA_2023-03-30_0852.xlsx")
+techs %>%
+  ggplot( aes(x=wkday_sitting_hours)) +
+    geom_histogram(stat = "count", fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+    ggtitle("Time Sitting") +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=15) + 
+       geom_density(color = "#000000", fill = "#F85700", alpha = 0.6)
+      )
+
+techs %>%
+  ggplot( aes(x=BESS)) +
+    geom_histogram(stat = "count", fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+    ggtitle("BESS") +
+    theme(
+      plot.title = element_text(size=15) + 
+       geom_density(color = "#000000", fill = "#F85700", alpha = 0.6)
+      )
+
+techs$relativevo2 <- (techs$vo2max/techs$weight)*1000
+techs$BESS <- rowSums(techs[ , c("dls_firm","sls_firm","ts_firm","dsl_foam","sls_foam","ts_foam")], na.rm=TRUE)
+
+
+```
+
+
+#intervention
+```{r}
+
+techs$baseline_hr <- rowMeans(techs[, c("baseline_hr_int1_d5","baseline_hr_int1_d5_d2","baseline_hr_int1_d5_d3","baseline_hr_int1_d5_d4","baseline_hr_int1_d5_d5","baseline_hr_int1_d5_d6","baseline_hr_int1_d5_d7","baseline_hr_int1_d5_d8","baseline_hr_int1_d5_d9","baseline_hr_int1_d5_d10","baseline_hr_int1_d5_d11","baseline_hr_int1_d5_d12","baseline_hr_int1_d5_d13","baseline_hr_int1_d5_d14","baseline_hr_int1_d5_d15","baseline_hr_int1_d5_d16","baseline_hr_int1_d5_d17","baseline_hr_int1_d5_d18","baseline_hr_int1_d5_d19","baseline_hr_int1_d5_d20","baseline_hr_int1_d5_d21","baseline_hr_int1_d5_d22","baseline_hr_int1_d5_d23","baseline_hr_int1_d5_d24","baseline_hr_int1_d5_d25","baseline_hr_int1_d5_d26","baseline_hr_int1_d5_d27","baseline_hr_int1_d5_d28","baseline_hr_int1_d5_d29","baseline_hr_int1_d5_d30","baseline_hr_int1_d5_d31","baseline_hr_int1_d5_d32","baseline_hr_int1_d5_d33","baseline_hr_int1_d5_d34","baseline_hr_int1_d5_d35","baseline_hr_int1_d5_d36")], na.rm=TRUE)
+techs$baseline_hr_perc <- rowMeans(techs[ , c("hr_max_baseline_int1_d5","hr_max_baseline_int1_d5_d2","hr_max_baseline_int1_d5_d3","hr_max_baseline_int1_d5_d4","hr_max_baseline_int1_d5_d5","hr_max_baseline_int1_d5_d6","hr_max_baseline_int1_d5_d7","hr_max_baseline_int1_d5_d8","hr_max_baseline_int1_d5_d9","hr_max_baseline_int1_d5_d10","hr_max_baseline_int1_d5_d11","hr_max_baseline_int1_d5_d12","hr_max_baseline_int1_d5_d13","hr_max_baseline_int1_d5_d14","hr_max_baseline_int1_d5_d15","hr_max_baseline_int1_d5_d16","hr_max_baseline_int1_d5_d17","hr_max_baseline_int1_d5_d18","hr_max_baseline_int1_d5_d19","hr_max_baseline_int1_d5_d20","hr_max_baseline_int1_d5_d21","hr_max_baseline_int1_d5_d22","hr_max_baseline_int1_d5_d23","hr_max_baseline_int1_d5_d24","hr_max_baseline_int1_d5_d25","hr_max_baseline_int1_d5_d26","hr_max_baseline_int1_d5_d27","hr_max_baseline_int1_d5_d28","hr_max_baseline_int1_d5_d29","hr_max_baseline_int1_d5_d30","hr_max_baseline_int1_d5_d31","hr_max_baseline_int1_d5_d32","hr_max_baseline_int1_d5_d33","hr_max_baseline_int1_d5_d34","hr_max_baseline_int1_d5_d35","hr_max_baseline_int1_d5_d36")], na.rm=TRUE)
+
+techs$min5_hr <- rowMeans(techs[, c("hr_1_int1_d5","hr_1_int1_d5_d2","hr_1_int1_d5_d3","hr_1_int1_d5_d4","hr_1_int1_d5_d5","hr_1_int1_d5_d6","hr_1_int1_d5_d7","hr_1_int1_d5_d8","hr_1_int1_d5_d9","hr_1_int1_d5_d10","hr_1_int1_d5_d11","hr_1_int1_d5_d12","hr_1_int1_d5_d13","hr_1_int1_d5_d14","hr_1_int1_d5_d15","hr_1_int1_d5_d16","hr_1_int1_d5_d17","hr_1_int1_d5_d18","hr_1_int1_d5_d19","hr_1_int1_d5_d20","hr_1_int1_d5_d21","hr_1_int1_d5_d22","hr_1_int1_d5_d23","hr_1_int1_d5_d24","hr_1_int1_d5_d25","hr_1_int1_d5_d26","hr_1_int1_d5_d27","hr_1_int1_d5_d28","hr_1_int1_d5_d29","hr_1_int1_d5_d30","hr_1_int1_d5_d31","hr_1_int1_d5_d32","hr_1_int1_d5_d33","hr_1_int1_d5_d34","hr_1_int1_d5_d35","hr_1_int1_d5_d36")], na.rm=TRUE)
+techs$min5_hr_perc <- rowMeans(techs[ , c("hr_max_1_int1_d5","hr_max_1_int1_d5_d2","hr_max_1_int1_d5_d3","hr_max_1_int1_d5_d4","hr_max_1_int1_d5_d5","hr_max_1_int1_d5_d6","hr_max_1_int1_d5_d7","hr_max_1_int1_d5_d8","hr_max_1_int1_d5_d9","hr_max_1_int1_d5_d10","hr_max_1_int1_d5_d11","hr_max_1_int1_d5_d12","hr_max_1_int1_d5_d13","hr_max_1_int1_d5_d14","hr_max_1_int1_d5_d15","hr_max_1_int1_d5_d16","hr_max_1_int1_d5_d17","hr_max_1_int1_d5_d18","hr_max_1_int1_d5_d19","hr_max_1_int1_d5_d20","hr_max_1_int1_d5_d21","hr_max_1_int1_d5_d22","hr_max_1_int1_d5_d23","hr_max_1_int1_d5_d24","hr_max_1_int1_d5_d25","hr_max_1_int1_d5_d26","hr_max_1_int1_d5_d27","hr_max_1_int1_d5_d28","hr_max_1_int1_d5_d29","hr_max_1_int1_d5_d30","hr_max_1_int1_d5_d31","hr_max_1_int1_d5_d32","hr_max_1_int1_d5_d33","hr_max_1_int1_d5_d34","hr_max_1_int1_d5_d35","hr_max_1_int1_d5_d36")], na.rm=TRUE)
+
+techs$min10_hr <- rowMeans(techs[, c("hr_2_int1_d5","hr_2_int1_d5_d2","hr_2_int1_d5_d3","hr_2_int1_d5_d4","hr_2_int1_d5_d5","hr_2_int1_d5_d6","hr_2_int1_d5_d7","hr_2_int1_d5_d8","hr_2_int1_d5_d9","hr_2_int1_d5_d10","hr_2_int1_d5_d11","hr_2_int1_d5_d12","hr_2_int1_d5_d13","hr_2_int1_d5_d14","hr_2_int1_d5_d15","hr_2_int1_d5_d16","hr_2_int1_d5_d17","hr_2_int1_d5_d18","hr_2_int1_d5_d19","hr_2_int1_d5_d20","hr_2_int1_d5_d21","hr_2_int1_d5_d22","hr_2_int1_d5_d23","hr_2_int1_d5_d24","hr_2_int1_d5_d25","hr_2_int1_d5_d26","hr_2_int1_d5_d27","hr_2_int1_d5_d28","hr_2_int1_d5_d29","hr_2_int1_d5_d30","hr_2_int1_d5_d31","hr_2_int1_d5_d32","hr_2_int1_d5_d33","hr_2_int1_d5_d34","hr_2_int1_d5_d35","hr_2_int1_d5_d36")], na.rm=TRUE)
+techs$min10_hr_perc <- rowMeans(techs[ , c("hr_max_2_int1_d5","hr_max_2_int1_d5_d2","hr_max_2_int1_d5_d3","hr_max_2_int1_d5_d4","hr_max_2_int1_d5_d5","hr_max_2_int1_d5_d6","hr_max_2_int1_d5_d7","hr_max_2_int1_d5_d8","hr_max_2_int1_d5_d9","hr_max_2_int1_d5_d10","hr_max_2_int1_d5_d11","hr_max_2_int1_d5_d12","hr_max_2_int1_d5_d13","hr_max_2_int1_d5_d14","hr_max_2_int1_d5_d15","hr_max_2_int1_d5_d16","hr_max_2_int1_d5_d17","hr_max_2_int1_d5_d18","hr_max_2_int1_d5_d19","hr_max_2_int1_d5_d20","hr_max_2_int1_d5_d21","hr_max_2_int1_d5_d22","hr_max_2_int1_d5_d23","hr_max_2_int1_d5_d24","hr_max_2_int1_d5_d25","hr_max_2_int1_d5_d26","hr_max_2_int1_d5_d27","hr_max_2_int1_d5_d28","hr_max_2_int1_d5_d29","hr_max_2_int1_d5_d30","hr_max_2_int1_d5_d31","hr_max_2_int1_d5_d32","hr_max_2_int1_d5_d33","hr_max_2_int1_d5_d34","hr_max_2_int1_d5_d35","hr_max_2_int1_d5_d36")], na.rm=TRUE)
+
+techs$min15_hr <- rowMeans(techs[, c("hr_3_int1_d5","hr_3_int1_d5_d2","hr_3_int1_d5_d3","hr_3_int1_d5_d4","hr_3_int1_d5_d5","hr_3_int1_d5_d6","hr_3_int1_d5_d7","hr_3_int1_d5_d8","hr_3_int1_d5_d9","hr_3_int1_d5_d10","hr_3_int1_d5_d11","hr_3_int1_d5_d12","hr_3_int1_d5_d13","hr_3_int1_d5_d14","hr_3_int1_d5_d15","hr_3_int1_d5_d16","hr_3_int1_d5_d17","hr_3_int1_d5_d18","hr_3_int1_d5_d19","hr_3_int1_d5_d20","hr_3_int1_d5_d21","hr_3_int1_d5_d22","hr_3_int1_d5_d23","hr_3_int1_d5_d24","hr_3_int1_d5_d25","hr_3_int1_d5_d26","hr_3_int1_d5_d27","hr_3_int1_d5_d28","hr_3_int1_d5_d29","hr_3_int1_d5_d30","hr_3_int1_d5_d31","hr_3_int1_d5_d32","hr_3_int1_d5_d33","hr_3_int1_d5_d34","hr_3_int1_d5_d35","hr_3_int1_d5_d36")], na.rm=TRUE)
+techs$min15_hr_perc <- rowMeans(techs[ , c("hr_max_3_int1_d5","hr_max_3_int1_d5_d2","hr_max_3_int1_d5_d3","hr_max_3_int1_d5_d4","hr_max_3_int1_d5_d5","hr_max_3_int1_d5_d6","hr_max_3_int1_d5_d7","hr_max_3_int1_d5_d8","hr_max_3_int1_d5_d9","hr_max_3_int1_d5_d10","hr_max_3_int1_d5_d11","hr_max_3_int1_d5_d12","hr_max_3_int1_d5_d13","hr_max_3_int1_d5_d14","hr_max_3_int1_d5_d15","hr_max_3_int1_d5_d16","hr_max_3_int1_d5_d17","hr_max_3_int1_d5_d18","hr_max_3_int1_d5_d19","hr_max_3_int1_d5_d20","hr_max_3_int1_d5_d21","hr_max_3_int1_d5_d22","hr_max_3_int1_d5_d23","hr_max_3_int1_d5_d24","hr_max_3_int1_d5_d25","hr_max_3_int1_d5_d26","hr_max_3_int1_d5_d27","hr_max_3_int1_d5_d28","hr_max_3_int1_d5_d29","hr_max_3_int1_d5_d30","hr_max_3_int1_d5_d31","hr_max_3_int1_d5_d32","hr_max_3_int1_d5_d33","hr_max_3_int1_d5_d34","hr_max_3_int1_d5_d35","hr_max_3_int1_d5_d36")], na.rm=TRUE)
+
+techs$min20_hr <- rowMeans(techs[, c("hr_4_int1_d5","hr_4_int1_d5_d2","hr_4_int1_d5_d3","hr_4_int1_d5_d4","hr_4_int1_d5_d5","hr_4_int1_d5_d6","hr_4_int1_d5_d7","hr_4_int1_d5_d8","hr_4_int1_d5_d9","hr_4_int1_d5_d10","hr_4_int1_d5_d11","hr_4_int1_d5_d12","hr_4_int1_d5_d13","hr_4_int1_d5_d14","hr_4_int1_d5_d15","hr_4_int1_d5_d16","hr_4_int1_d5_d17","hr_4_int1_d5_d18","hr_4_int1_d5_d19","hr_4_int1_d5_d20","hr_4_int1_d5_d21","hr_4_int1_d5_d22","hr_4_int1_d5_d23","hr_4_int1_d5_d24","hr_4_int1_d5_d25","hr_4_int1_d5_d26","hr_4_int1_d5_d27","hr_4_int1_d5_d28","hr_4_int1_d5_d29","hr_4_int1_d5_d30","hr_4_int1_d5_d31","hr_4_int1_d5_d32","hr_4_int1_d5_d33","hr_4_int1_d5_d34","hr_4_int1_d5_d35","hr_4_int1_d5_d36")], na.rm=TRUE)
+techs$min20_hr_perc <- rowMeans(techs[ , c("hr_max_4_int1_d5","hr_max_4_int1_d5_d2","hr_max_4_int1_d5_d3","hr_max_4_int1_d5_d4","hr_max_4_int1_d5_d5","hr_max_4_int1_d5_d6","hr_max_4_int1_d5_d7","hr_max_4_int1_d5_d8","hr_max_4_int1_d5_d9","hr_max_4_int1_d5_d10","hr_max_4_int1_d5_d11","hr_max_4_int1_d5_d12","hr_max_4_int1_d5_d13","hr_max_4_int1_d5_d14","hr_max_4_int1_d5_d15","hr_max_4_int1_d5_d16","hr_max_4_int1_d5_d17","hr_max_4_int1_d5_d18","hr_max_4_int1_d5_d19","hr_max_4_int1_d5_d20","hr_max_4_int1_d5_d21","hr_max_4_int1_d5_d22","hr_max_4_int1_d5_d23","hr_max_4_int1_d5_d24","hr_max_4_int1_d5_d25","hr_max_4_int1_d5_d26","hr_max_4_int1_d5_d27","hr_max_4_int1_d5_d28","hr_max_4_int1_d5_d29","hr_max_4_int1_d5_d30","hr_max_4_int1_d5_d31","hr_max_4_int1_d5_d32","hr_max_4_int1_d5_d33","hr_max_4_int1_d5_d34","hr_max_4_int1_d5_d35","hr_max_4_int1_d5_d36")], na.rm=TRUE)
+
+techs$min25_hr <- rowMeans(techs[, c("hr_5_int1_d5","hr_5_int1_d5_d2","hr_5_int1_d5_d3","hr_5_int1_d5_d4","hr_5_int1_d5_d5","hr_5_int1_d5_d6","hr_5_int1_d5_d7","hr_5_int1_d5_d8","hr_5_int1_d5_d9","hr_5_int1_d5_d10","hr_5_int1_d5_d11","hr_5_int1_d5_d12","hr_5_int1_d5_d13","hr_5_int1_d5_d14","hr_5_int1_d5_d15","hr_5_int1_d5_d16","hr_5_int1_d5_d17","hr_5_int1_d5_d18","hr_5_int1_d5_d19","hr_5_int1_d5_d20","hr_5_int1_d5_d21","hr_5_int1_d5_d22","hr_5_int1_d5_d23","hr_5_int1_d5_d24","hr_5_int1_d5_d25","hr_5_int1_d5_d26","hr_5_int1_d5_d27","hr_5_int1_d5_d28","hr_5_int1_d5_d29","hr_5_int1_d5_d30","hr_5_int1_d5_d31","hr_5_int1_d5_d32","hr_5_int1_d5_d33","hr_5_int1_d5_d34","hr_5_int1_d5_d35","hr_5_int1_d5_d36")], na.rm=TRUE)
+techs$min25_hr_perc <- rowMeans(techs[ , c("hr_max_5_int1_d5","hr_max_5_int1_d5_d2","hr_max_5_int1_d5_d3","hr_max_5_int1_d5_d4","hr_max_5_int1_d5_d5","hr_max_5_int1_d5_d6","hr_max_5_int1_d5_d7","hr_max_5_int1_d5_d8","hr_max_5_int1_d5_d9","hr_max_5_int1_d5_d10","hr_max_5_int1_d5_d11","hr_max_5_int1_d5_d12","hr_max_5_int1_d5_d13","hr_max_5_int1_d5_d14","hr_max_5_int1_d5_d15","hr_max_5_int1_d5_d16","hr_max_5_int1_d5_d17","hr_max_5_int1_d5_d18","hr_max_5_int1_d5_d19","hr_max_5_int1_d5_d20","hr_max_5_int1_d5_d21","hr_max_5_int1_d5_d22","hr_max_5_int1_d5_d23","hr_max_5_int1_d5_d24","hr_max_5_int1_d5_d25","hr_max_5_int1_d5_d26","hr_max_5_int1_d5_d27","hr_max_5_int1_d5_d28","hr_max_5_int1_d5_d29","hr_max_5_int1_d5_d30","hr_max_5_int1_d5_d31","hr_max_5_int1_d5_d32","hr_max_5_int1_d5_d33","hr_max_5_int1_d5_d34","hr_max_5_int1_d5_d35","hr_max_5_int1_d5_d36")], na.rm=TRUE)
+
+techs$min30_hr <- rowMeans(techs[, c("hr_6_int1_d5","hr_6_int1_d5_d2","hr_6_int1_d5_d3","hr_6_int1_d5_d4","hr_6_int1_d5_d5","hr_6_int1_d5_d6","hr_6_int1_d5_d7","hr_6_int1_d5_d8","hr_6_int1_d5_d9","hr_6_int1_d5_d10","hr_6_int1_d5_d11","hr_6_int1_d5_d12","hr_6_int1_d5_d13","hr_6_int1_d5_d14","hr_6_int1_d5_d15","hr_6_int1_d5_d16","hr_6_int1_d5_d17","hr_6_int1_d5_d18","hr_6_int1_d5_d19","hr_6_int1_d5_d20","hr_6_int1_d5_d21","hr_6_int1_d5_d22","hr_6_int1_d5_d23","hr_6_int1_d5_d24","hr_6_int1_d5_d25","hr_6_int1_d5_d26","hr_6_int1_d5_d27","hr_6_int1_d5_d28","hr_6_int1_d5_d29","hr_6_int1_d5_d30","hr_6_int1_d5_d31","hr_6_int1_d5_d32","hr_6_int1_d5_d33","hr_6_int1_d5_d34","hr_6_int1_d5_d35","hr_6_int1_d5_d36")], na.rm=TRUE)
+techs$min30_hr_perc <- rowMeans(techs[ , c("hr_max_6_int1_d5","hr_max_6_int1_d5_d2","hr_max_6_int1_d5_d3","hr_max_6_int1_d5_d4","hr_max_6_int1_d5_d5","hr_max_6_int1_d5_d6","hr_max_6_int1_d5_d7","hr_max_6_int1_d5_d8","hr_max_6_int1_d5_d9","hr_max_6_int1_d5_d10","hr_max_6_int1_d5_d11","hr_max_6_int1_d5_d12","hr_max_6_int1_d5_d13","hr_max_6_int1_d5_d14","hr_max_6_int1_d5_d15","hr_max_6_int1_d5_d16","hr_max_6_int1_d5_d17","hr_max_6_int1_d5_d18","hr_max_6_int1_d5_d19","hr_max_6_int1_d5_d20","hr_max_6_int1_d5_d21","hr_max_6_int1_d5_d22","hr_max_6_int1_d5_d23","hr_max_6_int1_d5_d24","hr_max_6_int1_d5_d25","hr_max_6_int1_d5_d26","hr_max_6_int1_d5_d27","hr_max_6_int1_d5_d28","hr_max_6_int1_d5_d29","hr_max_6_int1_d5_d30","hr_max_6_int1_d5_d31","hr_max_6_int1_d5_d32","hr_max_6_int1_d5_d33","hr_max_6_int1_d5_d34","hr_max_6_int1_d5_d35","hr_max_6_int1_d5_d36")], na.rm=TRUE)
+
+data_hr <- data.frame(
+  HR = c(techs$baseline_hr,techs$min5_hr,techs$min10_hr,techs$min15_hr,techs$min20_hr,techs$min25_hr,techs$min30_hr),
+  HR_perc = c(techs$baseline_hr_perc,techs$min5_hr_perc,techs$min10_hr_perc,techs$min15_hr_perc,techs$min20_hr_perc,techs$min25_hr_perc,techs$min30_hr_perc),
+  time = c(1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7),
+  group = techs$randomization_group,
+   ID = techs$name
+)
+data_hr$group <- as.factor(data_hr$group)
+data_hr$ID <- as.factor(data_hr$ID)
+#plot HR line graphs
+library(ggplot2)
+library(reshape2)
+
+data_long <- melt(data_hr, id.vars = "time")
+ggplot(data_hr, aes(x = time, y = HR, color = ID)) +
+  geom_line() +
+  labs(title = "raw HR across intervention", x = "30 Minute session", y = "RAW HR")
+
+ggplot(data_hr, aes(x = time, y = HR_perc, color = ID)) +
+  geom_line() +
+  labs(title = "HR Max across intervention", x = "30 Minute session", y = "% of HR max")
+
+```
+```{r}
+techs$baseline_cif_int <- rowMeans(techs[, c("baseline_cif_int1_d5","baseline_cif_int1_d5_d2","baseline_cif_int1_d5_d3","baseline_cif_int1_d5_d4","baseline_cif_int1_d5_d5","baseline_cif_int1_d5_d6","baseline_cif_int1_d5_d7","baseline_cif_int1_d5_d8","baseline_cif_int1_d5_d9","baseline_cif_int1_d5_d10","baseline_cif_int1_d5_d11","baseline_cif_int1_d5_d12","baseline_cif_int1_d5_d13","baseline_cif_int1_d5_d14","baseline_cif_int1_d5_d15","baseline_cif_int1_d5_d16","baseline_cif_int1_d5_d17","baseline_cif_int1_d5_d18","baseline_cif_int1_d5_d19","baseline_cif_int1_d5_d20","baseline_cif_int1_d5_d21","baseline_cif_int1_d5_d22","baseline_cif_int1_d5_d23","baseline_cif_int1_d5_d24","baseline_cif_int1_d5_d25","baseline_cif_int1_d5_d26","baseline_cif_int1_d5_d27","baseline_cif_int1_d5_d28","baseline_cif_int1_d5_d29","baseline_cif_int1_d5_d30","baseline_cif_int1_d5_d31","baseline_cif_int1_d5_d32","baseline_cif_int1_d5_d33","baseline_cif_int1_d5_d34","baseline_cif_int1_d5_d35","baseline_cif_int1_d5_d36")], na.rm=TRUE)
+
+techs$min5_cif <- rowMeans(techs[, c("min5_cif_int1","min5_cif_int2","min5_cif_int3","min5_cif_int4","min5_cif_int5","min5_cif_int6","min5_cif_int7","min5_cif_int8","min5_cif_int9","min5_cif_int10","min5_cif_int11","min5_cif_int12","min5_cif_int13","min5_cif_int14","min5_cif_int15","min5_cif_int16","min5_cif_int17","min5_cif_int18","min5_cif_int19","min5_cif_int20","min5_cif_int21","min5_cif_int22","min5_cif_int23","min5_cif_int24","min5_cif_int25","min5_cif_int26","min5_cif_int27","min5_cif_int28","min5_cif_int29","min5_cif_int30","min5_cif_int31","min5_cif_int32","min5_cif_int33","min5_cif_int34","min5_cif_int35","min5_cif_int36")], na.rm=TRUE)
+
+techs$min10_cif <- rowMeans(techs[, c("min10_cif_int1","min10_cif_int2","min10_cif_int3","min10_cif_int4","min10_cif_int5","min10_cif_int6","min10_cif_int7","min10_cif_int8","min10_cif_int9","min10_cif_int10","min10_cif_int11","min10_cif_int12","min10_cif_int13","min10_cif_int14","min10_cif_int15","min10_cif_int16","min10_cif_int17","min10_cif_int18","min10_cif_int19","min10_cif_int20","min10_cif_int21","min10_cif_int22","min10_cif_int23","min10_cif_int24","min10_cif_int25","min10_cif_int26","min10_cif_int27","min10_cif_int28","min10_cif_int29","min10_cif_int30","min10_cif_int31","min10_cif_int32","min10_cif_int33","min10_cif_int34","min10_cif_int35","min10_cif_int36")], na.rm=TRUE)
+
+techs$min15_cif <- rowMeans(techs[, c("min15_cif_int1","min15_cif_int2","min15_cif_int3","min15_cif_int4","min15_cif_int5","min15_cif_int6","min15_cif_int7","min15_cif_int8","min15_cif_int9","min15_cif_int10","min15_cif_int11","min15_cif_int12","min15_cif_int13","min15_cif_int14","min15_cif_int15","min15_cif_int16","min15_cif_int17","min15_cif_int18","min15_cif_int19","min15_cif_int20","min15_cif_int21","min15_cif_int22","min15_cif_int23","min15_cif_int24","min15_cif_int25","min15_cif_int26","min15_cif_int27","min15_cif_int28","min15_cif_int29","min15_cif_int30","min15_cif_int31","min15_cif_int32","min15_cif_int33","min15_cif_int34","min15_cif_int35","min15_cif_int36")], na.rm=TRUE)
+
+techs$min20_cif <- rowMeans(techs[, c("min20_cif_int1","min20_cif_int2","min20_cif_int3","min20_cif_int4","min20_cif_int5","min20_cif_int6","min20_cif_int7","min20_cif_int8","min20_cif_int9","min20_cif_int10","min20_cif_int11","min20_cif_int12","min20_cif_int13","min20_cif_int14","min20_cif_int15","min20_cif_int16","min20_cif_int17","min20_cif_int18","min20_cif_int19","min20_cif_int20","min20_cif_int21","min20_cif_int22","min20_cif_int23","min20_cif_int24","min20_cif_int25","min20_cif_int26","min20_cif_int27","min20_cif_int28","min20_cif_int29","min20_cif_int30","min20_cif_int31","min20_cif_int32","min20_cif_int33","min20_cif_int34","min20_cif_int35","min20_cif_int36")], na.rm=TRUE)
+
+techs$min25_cif <- rowMeans(techs[, c("min25_cif_int1","min25_cif_int2","min25_cif_int3","min25_cif_int4","min25_cif_int5","min25_cif_int6","min25_cif_int7","min25_cif_int8","min25_cif_int9","min25_cif_int10","min25_cif_int11","min25_cif_int12","min25_cif_int13","min25_cif_int14","min25_cif_int15","min25_cif_int16","min25_cif_int17","min25_cif_int18","min25_cif_int19","min25_cif_int20","min25_cif_int21","min25_cif_int22","min25_cif_int23","min25_cif_int24","min25_cif_int25","min25_cif_int26","min25_cif_int27","min25_cif_int28","min25_cif_int29","min25_cif_int30","min25_cif_int31","min25_cif_int32","min25_cif_int33","min25_cif_int34","min25_cif_int35","min25_cif_int36")], na.rm=TRUE)
+
+techs$min30_cif <- rowMeans(techs[, c("min30_cif_int1","min30_cif_int2","min30_cif_int3","min30_cif_int4","min30_cif_int5","min30_cif_int6","min30_cif_int7","min30_cif_int8","min30_cif_int9","min30_cif_int10","min30_cif_int11","min30_cif_int12","min30_cif_int13","min30_cif_int14","min30_cif_int15","min30_cif_int16","min30_cif_int17","min30_cif_int18","min30_cif_int19","min30_cif_int20","min30_cif_int21","min30_cif_int22","min30_cif_int23","min30_cif_int24","min30_cif_int25","min30_cif_int26","min30_cif_int27","min30_cif_int28","min30_cif_int29","min30_cif_int30","min30_cif_int31","min30_cif_int32","min30_cif_int33","min30_cif_int34","min30_cif_int35","min30_cif_int36")], na.rm=TRUE)
+
+
+data_cif <- data.frame(
+  cif = c(techs$baseline_cif_int,techs$min5_cif,techs$min10_cif,techs$min15_cif,techs$min20_cif,techs$min25_cif,techs$min30_cif),
+  time = c(1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7),
+  group = techs$randomization_group,
+   ID = techs$name
+)
+data_cif$group <- as.factor(data_cif$group)
+data_cif$ID <- as.factor(data_cif$ID)
+#plot cif line graphs
+library(ggplot2)
+library(reshape2)
+
+data_long <- melt(data_cif, id.vars = "time")
+ggplot(data_cif, aes(x = time, y = cif, color = ID)) +
+  geom_line() +
+  labs(title = "Symptoms across intervention", x = "30 Minute session", y = "Symptom Score")
+
+```
+
+

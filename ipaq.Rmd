@@ -1,0 +1,23 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r IPAQ scoring}
+vigorous_MET <- 8
+moderate_MET <- 4
+walking_MET <- 3.3
+techs$vigorous_score <- techs$baseline_vig_min_per_day_pa * techs$baseline_vigorous_days_pa * vigorous_MET
+techs$moderate_score <- techs$baseline_mod_min_pa * techs$baseline_mod_days_pa * moderate_MET
+techs$walking_score <- techs$baseline_walking_min_pa * techs$baseline_walking_days_pa * walking_MET
+colSums(techs$vigorous_score, techs$moderate_score, techs$walking_score)
+techs$total_score <- rowSums(techs[, c("vigorous_score", "moderate_score", "walking_score")])
+
+techs$total_ipaq <- cut(techs$total_score, 
+                      breaks=c(-Inf, 600, 1500, Inf), 
+                      labels=c("Low","Moderate","High"))
+techs$wkday_sitting_hours <- techs$baseline_min_sitting
+```
+
+
