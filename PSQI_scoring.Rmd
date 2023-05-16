@@ -5,7 +5,7 @@ output: html_document
 
 
 ```{r}
-#analyzing PSQI scores
+#analyzing PSQI scores 
 techs$PSQ2score <- cut(techs$time_to_sleep_baseline, breaks=c(-Inf, 16, 31, 60, Inf), labels=c("1","2","3", "4"))
 techs$PSQ4score <- cut(techs$PSQ4A, breaks=c(-Inf, 5, 6, 7, Inf), labels=c("4","3","2", "1"))
 techs$PSQ2score<-replace(techs$PSQ2, techs$PSQ2>30, 1)

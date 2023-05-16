@@ -5,7 +5,7 @@ output: html_notebook
 
 
 ```{r IPAQ scoring}
-vigorous_MET <- 8
+vigorous_MET <- 8 
 moderate_MET <- 4
 walking_MET <- 3.3
 techs$vigorous_score <- techs$baseline_vig_min_per_day_pa * techs$baseline_vigorous_days_pa * vigorous_MET

@@ -10,9 +10,10 @@ library(dplyr)
 
 ```{r PROMIS Global Health scoring baseline}
 #recoding variables to the right names (specific to techs redcap)
+library(dplyr)
 techs$global01 <- techs$overall_health #raw score is fine
 techs$global02 <- techs$quality_life #raw score is fine
-techs$global03 <- techs$physical_health #raw score is fine
+techs$global03 <- techs$physical_health #raw score is fine 
 techs$global04 <- techs$mental_health #raw score is fine
 techs$global05 <- techs$social_satisfaction #raw score is fine
 techs$global06 <- techs$promis_physical_activities #raw score is fine

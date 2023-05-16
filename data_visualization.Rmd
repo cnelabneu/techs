@@ -6,7 +6,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(readxl)
-techs <- read_excel("~/Downloads/techs.xlsx")
+techs <- read_excel("~/Downloads/techs.xlsx", 
+    sheet = "Sheet1")
 View(techs)
 ```
 
@@ -88,6 +89,7 @@ data_hr <- data.frame(
 )
 data_hr$group <- as.factor(data_hr$group)
 data_hr$ID <- as.factor(data_hr$ID)
+techs$id <- as.factor(techs$id)
 #plot HR line graphs
 library(ggplot2)
 library(reshape2)
@@ -102,6 +104,7 @@ ggplot(data_hr, aes(x = time, y = HR_perc, color = ID)) +
   labs(title = "HR Max across intervention", x = "30 Minute session", y = "% of HR max")
 
 ```
+
 ```{r}
 techs$baseline_cif_int <- rowMeans(techs[, c("baseline_cif_int1_d5","baseline_cif_int1_d5_d2","baseline_cif_int1_d5_d3","baseline_cif_int1_d5_d4","baseline_cif_int1_d5_d5","baseline_cif_int1_d5_d6","baseline_cif_int1_d5_d7","baseline_cif_int1_d5_d8","baseline_cif_int1_d5_d9","baseline_cif_int1_d5_d10","baseline_cif_int1_d5_d11","baseline_cif_int1_d5_d12","baseline_cif_int1_d5_d13","baseline_cif_int1_d5_d14","baseline_cif_int1_d5_d15","baseline_cif_int1_d5_d16","baseline_cif_int1_d5_d17","baseline_cif_int1_d5_d18","baseline_cif_int1_d5_d19","baseline_cif_int1_d5_d20","baseline_cif_int1_d5_d21","baseline_cif_int1_d5_d22","baseline_cif_int1_d5_d23","baseline_cif_int1_d5_d24","baseline_cif_int1_d5_d25","baseline_cif_int1_d5_d26","baseline_cif_int1_d5_d27","baseline_cif_int1_d5_d28","baseline_cif_int1_d5_d29","baseline_cif_int1_d5_d30","baseline_cif_int1_d5_d31","baseline_cif_int1_d5_d32","baseline_cif_int1_d5_d33","baseline_cif_int1_d5_d34","baseline_cif_int1_d5_d35","baseline_cif_int1_d5_d36")], na.rm=TRUE)
 
@@ -138,13 +141,17 @@ ggplot(data_cif, aes(x = time, y = cif, color = ID)) +
 ```
 
 
-```{r}
+```{r pre/post data}
 #plot differences in pre/post data
 data_long <- melt(data_cif, id.vars = "time")
-ggplot(data_cif, aes(x = time, y = cif, color = ID)) +
+techs$timepoint <- as.factor(techs$timepoint)
+techs$id <- as.factor(techs$id)
+ggplot(techs, aes(x = timepoint, y = bess_sum, group = id, color = id)) +
   geom_line() +
-  labs(title = "Symptoms across intervention", x = "30 Minute session", y = "Symptom Score")
+  labs(title = "Bess", x = "Timepoint", y = "Total # of Errors")
+
+ggplot(data_hr, aes(x = time, y = HR_perc, group = ID, color = ID)) +
+  geom_line() +
+  labs(title = "HR Max across intervention", x = "30 Minute session", y = "% of HR max")
 
 ```
-
-
