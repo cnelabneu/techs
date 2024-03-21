@@ -6,7 +6,9 @@ output: html_document
 
 ```{r}
 #analyzing PSQI scores 
-techs$PSQ2score <- cut(techs$time_to_sleep_baseline, breaks=c(-Inf, 16, 31, 60, Inf), labels=c("1","2","3", "4"))
+#old
+techs$time_to_sleep_baseline <- as.numeric(techs$time_to_sleep_baseline)
+techs$PSQ2score <- cut(techs$time_to_sleep_baseline, breaks=c(-Inf, 16, 31, 60, Inf), labels=c("1","2","3","4"))
 techs$PSQ4score <- cut(techs$PSQ4A, breaks=c(-Inf, 5, 6, 7, Inf), labels=c("4","3","2", "1"))
 techs$PSQ2score<-replace(techs$PSQ2, techs$PSQ2>30, 1)
 techs$PSQ2score <- cut(techs$PSQ2, 
@@ -37,6 +39,7 @@ info$PSQtotal <- info$PSQ_comp1 + info$PSQ_comp2 + info$PSQ_comp3 + info$PSQ_com
 ```
 
 ```{r TECHS}
+#use this one
 techs$comp1 <- techs$sleep_quality
 techs$q2 <- cut(techs$time_to_sleep_baseline, 
                       breaks=c(-Inf, 16, 31, 60, Inf), 
@@ -46,9 +49,13 @@ techs$comp2 <- rowSums(techs[ , c("q2","cantsleep")], na.rm=TRUE)
 techs$comp2 <- cut(techs$comp2, 
                       breaks=c(-Inf, 1, 3, 4, Inf), 
                    labels=c("0","1","2", "3"))
+techs$sleep_baseline <- as.numeric(techs$sleep_baseline)
 techs$comp3 <- cut(techs$sleep_baseline, 
                        breaks=c(-Inf, 5, 6, 7, Inf), 
                        labels=c("3","2","1", "0"))
+techs$waketime_baseline <- as.numeric(techs$waketime_baseline)
+techs$bedtime_baseline <- as.numeric(techs$bedtime_baseline)
+
 techs$actual_sleep <- techs$waketime_baseline - techs$bedtime_baseline
 techs$comp4 <- (techs$sleep_baseline/techs$actual_sleep)*100
 techs$comp4 <- cut(techs$comp4, 
@@ -68,5 +75,26 @@ techs$comp5 <- as.numeric(techs$comp5)
 techs$comp6 <- as.numeric(techs$comp6)
 techs$comp7 <- as.numeric(techs$comp7)
 techs$totalpsqi <- rowSums(techs[ , c("comp1","comp2","comp3","comp4","comp5","comp6","comp7")], na.rm=TRUE)
+hist(techs$totalpsqi)
+ggplot(techs, aes(x = factor(totalpsqi), fill = as.factor(randomization_group))) +
+  geom_histogram(stat = "count") +
+  labs(x = "Category", y = "Count", title = "Count of Each Category for PSQI") +
+  scale_fill_manual(values = c("black", "red")) 
+
+ggplot(techs, aes(x = as.factor(randomization_group), y = totalpsqi, fill = as.factor(randomization_group))) +
+  geom_violin() + 
+  geom_point(position = position_jitterdodge(), size = 2, color = "white") +
+  stat_summary(fun = mean, geom = "text", aes(label = round(..y.., digits = 2)),
+               vjust = 1.5, size = 4, color = "white") +
+  labs(x = "Category", y = "Count", title = "Count of Each Category for PSQI") +
+  scale_fill_manual(values = c("black", "red"))
+
+
+ggplot(techs, aes(x = as.factor(randomization_group), y = totalpsqi, fill = as.factor(randomization_group))) +
+  geom_bar(stat = "summary", fun = "mean") +
+  stat_summary(fun = mean, geom = "text", aes(label = round(..y.., digits = 2)),
+               vjust = 1.5, size = 4, color = "white") +  # Adjusted position of text
+  labs(x = "Group", y = "PSQI", title = "Mean for each group PSQI") +
+  scale_fill_manual(values = c("black", "red"))
 
 ``` 

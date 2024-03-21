@@ -8,16 +8,54 @@ output: html_notebook
 vigorous_MET <- 8 
 moderate_MET <- 4
 walking_MET <- 3.3
+techs$baseline_vig_min_per_day_pa <- ifelse(is.na(techs$baseline_vig_min_per_day_pa), 0, techs$baseline_vig_min_per_day_pa)
+techs$baseline_vigorous_days_pa <- ifelse(is.na(techs$baseline_vigorous_days_pa), 0, techs$baseline_vigorous_days_pa)
+techs$baseline_mod_min_pa <- ifelse(is.na(techs$baseline_mod_min_pa), 0, techs$baseline_mod_min_pa)
+techs$baseline_mod_days_pa <- ifelse(is.na(techs$baseline_mod_days_pa), 0, techs$baseline_mod_days_pa)
+techs$baseline_walking_min_pa <- ifelse(is.na(techs$baseline_walking_min_pa), 0, techs$baseline_walking_min_pa)
+techs$baseline_walking_days_pa <- ifelse(is.na(techs$baseline_walking_days_pa), 0, techs$baseline_walking_days_pa)
+techs$baseline_vigorous_days_pa <- as.numeric(techs$baseline_vigorous_days_pa)
+techs$baseline_mod_min_pa <- as.numeric(techs$baseline_mod_min_pa)
+techs$baseline_mod_days_pa <- as.numeric(techs$baseline_mod_days_pa)
+techs$baseline_walking_min_pa <- as.numeric(techs$baseline_walking_min_pa)
+techs$baseline_walking_days_pa <- as.numeric(techs$baseline_walking_days_pa)
+techs$baseline_vig_min_per_day_pa <- as.numeric(techs$baseline_vig_min_per_day_pa)
+
 techs$vigorous_score <- techs$baseline_vig_min_per_day_pa * techs$baseline_vigorous_days_pa * vigorous_MET
 techs$moderate_score <- techs$baseline_mod_min_pa * techs$baseline_mod_days_pa * moderate_MET
 techs$walking_score <- techs$baseline_walking_min_pa * techs$baseline_walking_days_pa * walking_MET
-colSums(techs$vigorous_score, techs$moderate_score, techs$walking_score)
 techs$total_score <- rowSums(techs[, c("vigorous_score", "moderate_score", "walking_score")])
 
 techs$total_ipaq <- cut(techs$total_score, 
                       breaks=c(-Inf, 600, 1500, Inf), 
                       labels=c("Low","Moderate","High"))
 techs$wkday_sitting_hours <- techs$baseline_min_sitting
+techs$vigorous_score
+techs$moderate_score
+techs$walking_score
+print(techs$total_ipaq)
+techs$total_ipaq_numeric <- as.factor(techs$total_ipaq)
+hist(techs$total_ipaq_numeric)
+
+ggplot(techs, aes(x = factor(total_ipaq))) +
+  geom_bar() +
+  labs(x = "Category", y = "Count", title = "Count of Each Category in total_ipaq")
+
+
+ggplot(techs, aes(x = factor(total_ipaq), fill = as.factor(randomization_group))) +
+  geom_histogram(stat = "count") +
+  labs(x = "Category", y = "Count", title = "Count of Each Category in total_ipaq") +
+  scale_fill_manual(values = c("black", "red"))  # Setting color scale
+print(techs$total_score)
+
+ggplot(techs, aes(x = as.factor(randomization_group), y = total_score, fill = as.factor(randomization_group))) +
+  geom_violin() + 
+  geom_point(position = position_jitterdodge(), size = 2, color = "white") +
+  stat_summary(fun = mean, geom = "text", aes(label = round(..y.., digits = 2)),
+               vjust = 1.5, size = 4, color = "white") +
+  labs(x = "Category", y = "Count", title = "Count of Each Category for IPAQ") +
+  scale_fill_manual(values = c("black", "red"))
+
 ```
 
 

@@ -7,19 +7,72 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(readxl)
 techs <- read_excel("~/Downloads/techs.xlsx", 
-    sheet = "Sheet1")
+    sheet = "Sheet2")
+View(techs)
+library(readxl)
+library(rlang)
+library(ggplot2)
+library(dplyr)
+library(psych)
+library(nlme)
+library(table1)
+library(readxl)
+library(tidyr)
+
+techs <- read_excel("TECHS_DATA_2024-03-21_1340.xlsx")
 View(techs)
 ```
 
 #TECHS
 ```{r}
-techs$age <- as.vector(techs$age)
-ggplot(techs, aes(age, aes(x=age))) +
-  geom_histogram() +
-  geom_col(width = 0.5)
+techs$age <- as.numeric(techs$age)
+techs$days_since_injury_calc <- as.numeric(techs$days_since_injury_calc)
+techs$sex_factor <- as.factor(techs$sex)
+techs$annual_income_factor <- as.factor(techs$annual_income)
+techs$ethnicity_factor <- as.factor(techs$ethnicity)
+techs$race_factor <- as.factor(techs$race)
+
+
+techs <- techs %>%
+  mutate(sex_factor = ifelse(sex_factor == 0, "Female", "Male"))
+techs <- techs %>%
+  mutate(ethnicity_factor = ifelse(ethnicity_factor == 0, "Hispanic or Latino", "NOT Hispanic or Latino"))
+techs <- techs %>%
+  mutate(race_factor = case_when(
+    race == 0 ~ "American Indian/Alaska Native",
+    race == 1 ~ "Asian",
+    race == 2 ~ "Native Hawaiian/Pacific Islander",
+    race == 3 ~ "Black or African American",
+    race == 4 ~ "White/Caucasian",
+    race == 5 ~ "Mixed Race",
+    TRUE ~ as.character(race_factor)
+  ))
+
+techs <- techs %>%
+  mutate(annual_income_factor = case_when(
+    annual_income == 0 ~ ">$20K",
+    annual_income == 1 ~ "$20K-$40K",
+    annual_income == 2 ~ "$40K-$60K",
+    annual_income == 3 ~ "$60K-$80K",
+    annual_income == 4 ~ "$80K-$100K",
+    annual_income == 5 ~ "$100K-$120K",
+    annual_income == 6 ~ "$120K-$140K",
+    annual_income == 7 ~ "$140K-$160K",
+    annual_income == 8 ~ "$160K-$180K"
+  ))
+
+table1(~ factor(sex_factor) + age + factor(annual_income_factor) + days_since_injury + ethnicity_factor + factor(race_factor) + years_of_ed | randomization_group, data=techs)
+
+
+
+print(techs$referral_source)
+ggplot(techs, aes(x = age)) +
+  geom_histogram()
+ggplot(techs, aes(x = sex)) +
+  geom_histogram()
 
 techs %>%
-  ggplot( aes(x=days_since_injury)) +
+  ggplot(techs, aes(x=days_since_injury_calc)) +
     geom_histogram( binwidth=3, fill="#69b3a2", color="#e9ecef", alpha=0.9) +
     ggtitle("age") +
     theme_ipsum() +
@@ -29,21 +82,11 @@ techs %>%
 
 techs$ethnicity <- as.character(techs$ethnicity)
 techs$global06 <- techs$promis_physical_activities
-techs <- read_excel("Documents/Northeastern/CCBH_Lab/Projects/TECHS/IRB/TECHS_DATA_2023-03-30_0852.xlsx")
 techs %>%
   ggplot( aes(x=wkday_sitting_hours)) +
     geom_histogram(stat = "count", fill="#69b3a2", color="#e9ecef", alpha=0.9) +
     ggtitle("Time Sitting") +
     theme_ipsum() +
-    theme(
-      plot.title = element_text(size=15) + 
-       geom_density(color = "#000000", fill = "#F85700", alpha = 0.6)
-      )
-
-techs %>%
-  ggplot( aes(x=BESS)) +
-    geom_histogram(stat = "count", fill="#69b3a2", color="#e9ecef", alpha=0.9) +
-    ggtitle("BESS") +
     theme(
       plot.title = element_text(size=15) + 
        geom_density(color = "#000000", fill = "#F85700", alpha = 0.6)
@@ -60,10 +103,12 @@ techs$BESS <- rowSums(techs[ , c("dls_firm","sls_firm","ts_firm","dsl_foam","sls
 ```{r}
 
 techs$baseline_hr <- rowMeans(techs[, c("baseline_hr_int1_d5","baseline_hr_int1_d5_d2","baseline_hr_int1_d5_d3","baseline_hr_int1_d5_d4","baseline_hr_int1_d5_d5","baseline_hr_int1_d5_d6","baseline_hr_int1_d5_d7","baseline_hr_int1_d5_d8","baseline_hr_int1_d5_d9","baseline_hr_int1_d5_d10","baseline_hr_int1_d5_d11","baseline_hr_int1_d5_d12","baseline_hr_int1_d5_d13","baseline_hr_int1_d5_d14","baseline_hr_int1_d5_d15","baseline_hr_int1_d5_d16","baseline_hr_int1_d5_d17","baseline_hr_int1_d5_d18","baseline_hr_int1_d5_d19","baseline_hr_int1_d5_d20","baseline_hr_int1_d5_d21","baseline_hr_int1_d5_d22","baseline_hr_int1_d5_d23","baseline_hr_int1_d5_d24","baseline_hr_int1_d5_d25","baseline_hr_int1_d5_d26","baseline_hr_int1_d5_d27","baseline_hr_int1_d5_d28","baseline_hr_int1_d5_d29","baseline_hr_int1_d5_d30","baseline_hr_int1_d5_d31","baseline_hr_int1_d5_d32","baseline_hr_int1_d5_d33","baseline_hr_int1_d5_d34","baseline_hr_int1_d5_d35","baseline_hr_int1_d5_d36")], na.rm=TRUE)
+
+
 techs$baseline_hr_perc <- rowMeans(techs[ , c("hr_max_baseline_int1_d5","hr_max_baseline_int1_d5_d2","hr_max_baseline_int1_d5_d3","hr_max_baseline_int1_d5_d4","hr_max_baseline_int1_d5_d5","hr_max_baseline_int1_d5_d6","hr_max_baseline_int1_d5_d7","hr_max_baseline_int1_d5_d8","hr_max_baseline_int1_d5_d9","hr_max_baseline_int1_d5_d10","hr_max_baseline_int1_d5_d11","hr_max_baseline_int1_d5_d12","hr_max_baseline_int1_d5_d13","hr_max_baseline_int1_d5_d14","hr_max_baseline_int1_d5_d15","hr_max_baseline_int1_d5_d16","hr_max_baseline_int1_d5_d17","hr_max_baseline_int1_d5_d18","hr_max_baseline_int1_d5_d19","hr_max_baseline_int1_d5_d20","hr_max_baseline_int1_d5_d21","hr_max_baseline_int1_d5_d22","hr_max_baseline_int1_d5_d23","hr_max_baseline_int1_d5_d24","hr_max_baseline_int1_d5_d25","hr_max_baseline_int1_d5_d26","hr_max_baseline_int1_d5_d27","hr_max_baseline_int1_d5_d28","hr_max_baseline_int1_d5_d29","hr_max_baseline_int1_d5_d30","hr_max_baseline_int1_d5_d31","hr_max_baseline_int1_d5_d32","hr_max_baseline_int1_d5_d33","hr_max_baseline_int1_d5_d34","hr_max_baseline_int1_d5_d35","hr_max_baseline_int1_d5_d36")], na.rm=TRUE)
 
-techs$min5_hr <- rowMeans(techs[, c("hr_1_int1_d5","hr_1_int1_d5_d2","hr_1_int1_d5_d3","hr_1_int1_d5_d4","hr_1_int1_d5_d5","hr_1_int1_d5_d6","hr_1_int1_d5_d7","hr_1_int1_d5_d8","hr_1_int1_d5_d9","hr_1_int1_d5_d10","hr_1_int1_d5_d11","hr_1_int1_d5_d12","hr_1_int1_d5_d13","hr_1_int1_d5_d14","hr_1_int1_d5_d15","hr_1_int1_d5_d16","hr_1_int1_d5_d17","hr_1_int1_d5_d18","hr_1_int1_d5_d19","hr_1_int1_d5_d20","hr_1_int1_d5_d21","hr_1_int1_d5_d22","hr_1_int1_d5_d23","hr_1_int1_d5_d24","hr_1_int1_d5_d25","hr_1_int1_d5_d26","hr_1_int1_d5_d27","hr_1_int1_d5_d28","hr_1_int1_d5_d29","hr_1_int1_d5_d30","hr_1_int1_d5_d31","hr_1_int1_d5_d32","hr_1_int1_d5_d33","hr_1_int1_d5_d34","hr_1_int1_d5_d35","hr_1_int1_d5_d36")], na.rm=TRUE)
-techs$min5_hr_perc <- rowMeans(techs[ , c("hr_max_1_int1_d5","hr_max_1_int1_d5_d2","hr_max_1_int1_d5_d3","hr_max_1_int1_d5_d4","hr_max_1_int1_d5_d5","hr_max_1_int1_d5_d6","hr_max_1_int1_d5_d7","hr_max_1_int1_d5_d8","hr_max_1_int1_d5_d9","hr_max_1_int1_d5_d10","hr_max_1_int1_d5_d11","hr_max_1_int1_d5_d12","hr_max_1_int1_d5_d13","hr_max_1_int1_d5_d14","hr_max_1_int1_d5_d15","hr_max_1_int1_d5_d16","hr_max_1_int1_d5_d17","hr_max_1_int1_d5_d18","hr_max_1_int1_d5_d19","hr_max_1_int1_d5_d20","hr_max_1_int1_d5_d21","hr_max_1_int1_d5_d22","hr_max_1_int1_d5_d23","hr_max_1_int1_d5_d24","hr_max_1_int1_d5_d25","hr_max_1_int1_d5_d26","hr_max_1_int1_d5_d27","hr_max_1_int1_d5_d28","hr_max_1_int1_d5_d29","hr_max_1_int1_d5_d30","hr_max_1_int1_d5_d31","hr_max_1_int1_d5_d32","hr_max_1_int1_d5_d33","hr_max_1_int1_d5_d34","hr_max_1_int1_d5_d35","hr_max_1_int1_d5_d36")], na.rm=TRUE)
+techs$min05_hr <- rowMeans(techs[, c("hr_1_int1_d5","hr_1_int1_d5_d2","hr_1_int1_d5_d3","hr_1_int1_d5_d4","hr_1_int1_d5_d5","hr_1_int1_d5_d6","hr_1_int1_d5_d7","hr_1_int1_d5_d8","hr_1_int1_d5_d9","hr_1_int1_d5_d10","hr_1_int1_d5_d11","hr_1_int1_d5_d12","hr_1_int1_d5_d13","hr_1_int1_d5_d14","hr_1_int1_d5_d15","hr_1_int1_d5_d16","hr_1_int1_d5_d17","hr_1_int1_d5_d18","hr_1_int1_d5_d19","hr_1_int1_d5_d20","hr_1_int1_d5_d21","hr_1_int1_d5_d22","hr_1_int1_d5_d23","hr_1_int1_d5_d24","hr_1_int1_d5_d25","hr_1_int1_d5_d26","hr_1_int1_d5_d27","hr_1_int1_d5_d28","hr_1_int1_d5_d29","hr_1_int1_d5_d30","hr_1_int1_d5_d31","hr_1_int1_d5_d32","hr_1_int1_d5_d33","hr_1_int1_d5_d34","hr_1_int1_d5_d35","hr_1_int1_d5_d36")], na.rm=TRUE)
+techs$min05_hr_perc <- rowMeans(techs[ , c("hr_max_1_int1_d5","hr_max_1_int1_d5_d2","hr_max_1_int1_d5_d3","hr_max_1_int1_d5_d4","hr_max_1_int1_d5_d5","hr_max_1_int1_d5_d6","hr_max_1_int1_d5_d7","hr_max_1_int1_d5_d8","hr_max_1_int1_d5_d9","hr_max_1_int1_d5_d10","hr_max_1_int1_d5_d11","hr_max_1_int1_d5_d12","hr_max_1_int1_d5_d13","hr_max_1_int1_d5_d14","hr_max_1_int1_d5_d15","hr_max_1_int1_d5_d16","hr_max_1_int1_d5_d17","hr_max_1_int1_d5_d18","hr_max_1_int1_d5_d19","hr_max_1_int1_d5_d20","hr_max_1_int1_d5_d21","hr_max_1_int1_d5_d22","hr_max_1_int1_d5_d23","hr_max_1_int1_d5_d24","hr_max_1_int1_d5_d25","hr_max_1_int1_d5_d26","hr_max_1_int1_d5_d27","hr_max_1_int1_d5_d28","hr_max_1_int1_d5_d29","hr_max_1_int1_d5_d30","hr_max_1_int1_d5_d31","hr_max_1_int1_d5_d32","hr_max_1_int1_d5_d33","hr_max_1_int1_d5_d34","hr_max_1_int1_d5_d35","hr_max_1_int1_d5_d36")], na.rm=TRUE)
 
 techs$min10_hr <- rowMeans(techs[, c("hr_2_int1_d5","hr_2_int1_d5_d2","hr_2_int1_d5_d3","hr_2_int1_d5_d4","hr_2_int1_d5_d5","hr_2_int1_d5_d6","hr_2_int1_d5_d7","hr_2_int1_d5_d8","hr_2_int1_d5_d9","hr_2_int1_d5_d10","hr_2_int1_d5_d11","hr_2_int1_d5_d12","hr_2_int1_d5_d13","hr_2_int1_d5_d14","hr_2_int1_d5_d15","hr_2_int1_d5_d16","hr_2_int1_d5_d17","hr_2_int1_d5_d18","hr_2_int1_d5_d19","hr_2_int1_d5_d20","hr_2_int1_d5_d21","hr_2_int1_d5_d22","hr_2_int1_d5_d23","hr_2_int1_d5_d24","hr_2_int1_d5_d25","hr_2_int1_d5_d26","hr_2_int1_d5_d27","hr_2_int1_d5_d28","hr_2_int1_d5_d29","hr_2_int1_d5_d30","hr_2_int1_d5_d31","hr_2_int1_d5_d32","hr_2_int1_d5_d33","hr_2_int1_d5_d34","hr_2_int1_d5_d35","hr_2_int1_d5_d36")], na.rm=TRUE)
 techs$min10_hr_perc <- rowMeans(techs[ , c("hr_max_2_int1_d5","hr_max_2_int1_d5_d2","hr_max_2_int1_d5_d3","hr_max_2_int1_d5_d4","hr_max_2_int1_d5_d5","hr_max_2_int1_d5_d6","hr_max_2_int1_d5_d7","hr_max_2_int1_d5_d8","hr_max_2_int1_d5_d9","hr_max_2_int1_d5_d10","hr_max_2_int1_d5_d11","hr_max_2_int1_d5_d12","hr_max_2_int1_d5_d13","hr_max_2_int1_d5_d14","hr_max_2_int1_d5_d15","hr_max_2_int1_d5_d16","hr_max_2_int1_d5_d17","hr_max_2_int1_d5_d18","hr_max_2_int1_d5_d19","hr_max_2_int1_d5_d20","hr_max_2_int1_d5_d21","hr_max_2_int1_d5_d22","hr_max_2_int1_d5_d23","hr_max_2_int1_d5_d24","hr_max_2_int1_d5_d25","hr_max_2_int1_d5_d26","hr_max_2_int1_d5_d27","hr_max_2_int1_d5_d28","hr_max_2_int1_d5_d29","hr_max_2_int1_d5_d30","hr_max_2_int1_d5_d31","hr_max_2_int1_d5_d32","hr_max_2_int1_d5_d33","hr_max_2_int1_d5_d34","hr_max_2_int1_d5_d35","hr_max_2_int1_d5_d36")], na.rm=TRUE)
@@ -80,18 +125,31 @@ techs$min25_hr_perc <- rowMeans(techs[ , c("hr_max_5_int1_d5","hr_max_5_int1_d5_
 techs$min30_hr <- rowMeans(techs[, c("hr_6_int1_d5","hr_6_int1_d5_d2","hr_6_int1_d5_d3","hr_6_int1_d5_d4","hr_6_int1_d5_d5","hr_6_int1_d5_d6","hr_6_int1_d5_d7","hr_6_int1_d5_d8","hr_6_int1_d5_d9","hr_6_int1_d5_d10","hr_6_int1_d5_d11","hr_6_int1_d5_d12","hr_6_int1_d5_d13","hr_6_int1_d5_d14","hr_6_int1_d5_d15","hr_6_int1_d5_d16","hr_6_int1_d5_d17","hr_6_int1_d5_d18","hr_6_int1_d5_d19","hr_6_int1_d5_d20","hr_6_int1_d5_d21","hr_6_int1_d5_d22","hr_6_int1_d5_d23","hr_6_int1_d5_d24","hr_6_int1_d5_d25","hr_6_int1_d5_d26","hr_6_int1_d5_d27","hr_6_int1_d5_d28","hr_6_int1_d5_d29","hr_6_int1_d5_d30","hr_6_int1_d5_d31","hr_6_int1_d5_d32","hr_6_int1_d5_d33","hr_6_int1_d5_d34","hr_6_int1_d5_d35","hr_6_int1_d5_d36")], na.rm=TRUE)
 techs$min30_hr_perc <- rowMeans(techs[ , c("hr_max_6_int1_d5","hr_max_6_int1_d5_d2","hr_max_6_int1_d5_d3","hr_max_6_int1_d5_d4","hr_max_6_int1_d5_d5","hr_max_6_int1_d5_d6","hr_max_6_int1_d5_d7","hr_max_6_int1_d5_d8","hr_max_6_int1_d5_d9","hr_max_6_int1_d5_d10","hr_max_6_int1_d5_d11","hr_max_6_int1_d5_d12","hr_max_6_int1_d5_d13","hr_max_6_int1_d5_d14","hr_max_6_int1_d5_d15","hr_max_6_int1_d5_d16","hr_max_6_int1_d5_d17","hr_max_6_int1_d5_d18","hr_max_6_int1_d5_d19","hr_max_6_int1_d5_d20","hr_max_6_int1_d5_d21","hr_max_6_int1_d5_d22","hr_max_6_int1_d5_d23","hr_max_6_int1_d5_d24","hr_max_6_int1_d5_d25","hr_max_6_int1_d5_d26","hr_max_6_int1_d5_d27","hr_max_6_int1_d5_d28","hr_max_6_int1_d5_d29","hr_max_6_int1_d5_d30","hr_max_6_int1_d5_d31","hr_max_6_int1_d5_d32","hr_max_6_int1_d5_d33","hr_max_6_int1_d5_d34","hr_max_6_int1_d5_d35","hr_max_6_int1_d5_d36")], na.rm=TRUE)
 
-data_hr <- data.frame(
-  HR = c(techs$baseline_hr,techs$min5_hr,techs$min10_hr,techs$min15_hr,techs$min20_hr,techs$min25_hr,techs$min30_hr),
-  HR_perc = c(techs$baseline_hr_perc,techs$min5_hr_perc,techs$min10_hr_perc,techs$min15_hr_perc,techs$min20_hr_perc,techs$min25_hr_perc,techs$min30_hr_perc),
-  time = c(1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7),
-  group = techs$randomization_group,
-   ID = techs$name
-)
+#make long
+long_techs <- techs %>%
+  gather(key = "time_point", value = "heart_rate", baseline_hr, min05_hr, min10_hr, min15_hr, min20_hr, min25_hr, min30_hr)
+#plot each participant
+ggplot(long_techs, aes(x = time_point, y = heart_rate, group = name)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~ name, nrow = 3) +  # Assuming 12 participants, arrange them in 3 rows
+  labs(x = "Time Point", y = "Heart Rate", title = "Heart Rate Over Time for Each Participant")
+#plot all participants
+long_techs <- techs %>%
+  gather(key = "time_point", value = "heart_rate_perc", baseline_hr_perc, min05_hr_perc, min10_hr_perc, min15_hr_perc, min20_hr_perc, min25_hr_perc, min30_hr_perc)
+
+ggplot(long_techs, aes(x = time_point, y = heart_rate_perc, group = name)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~ name, nrow = 3) +  # Assuming 12 participants, arrange them in 3 rows
+  labs(x = "Time Point", y = "Heart Rate % ", title = "Heart Rate % Over Time for Each Participant")
+
+
 data_hr$group <- as.factor(data_hr$group)
 data_hr$ID <- as.factor(data_hr$ID)
-techs$id <- as.factor(techs$id)
 #plot HR line graphs
 library(ggplot2)
+install.packages("reshape2")
 library(reshape2)
 
 data_long <- melt(data_hr, id.vars = "time")
@@ -101,57 +159,289 @@ ggplot(data_hr, aes(x = time, y = HR, color = ID)) +
 
 ggplot(data_hr, aes(x = time, y = HR_perc, color = ID)) +
   geom_line() +
-  labs(title = "HR Max across intervention", x = "30 Minute session", y = "% of HR max")
+  theme_classic(base_size = 12) +
+  geom_line(size = 2) + theme(legend.position = "none")  +
+  labs(title = "", x = "30 Minute session", y = "% of HR max")
 
 ```
 
 ```{r}
-techs$baseline_cif_int <- rowMeans(techs[, c("baseline_cif_int1_d5","baseline_cif_int1_d5_d2","baseline_cif_int1_d5_d3","baseline_cif_int1_d5_d4","baseline_cif_int1_d5_d5","baseline_cif_int1_d5_d6","baseline_cif_int1_d5_d7","baseline_cif_int1_d5_d8","baseline_cif_int1_d5_d9","baseline_cif_int1_d5_d10","baseline_cif_int1_d5_d11","baseline_cif_int1_d5_d12","baseline_cif_int1_d5_d13","baseline_cif_int1_d5_d14","baseline_cif_int1_d5_d15","baseline_cif_int1_d5_d16","baseline_cif_int1_d5_d17","baseline_cif_int1_d5_d18","baseline_cif_int1_d5_d19","baseline_cif_int1_d5_d20","baseline_cif_int1_d5_d21","baseline_cif_int1_d5_d22","baseline_cif_int1_d5_d23","baseline_cif_int1_d5_d24","baseline_cif_int1_d5_d25","baseline_cif_int1_d5_d26","baseline_cif_int1_d5_d27","baseline_cif_int1_d5_d28","baseline_cif_int1_d5_d29","baseline_cif_int1_d5_d30","baseline_cif_int1_d5_d31","baseline_cif_int1_d5_d32","baseline_cif_int1_d5_d33","baseline_cif_int1_d5_d34","baseline_cif_int1_d5_d35","baseline_cif_int1_d5_d36")], na.rm=TRUE)
+techs$cif_1 <- rowMeans(techs[, c("baseline_cif_int1_d5","baseline_cif_int1_d5_d2","baseline_cif_int1_d5_d3","baseline_cif_int1_d5_d4","baseline_cif_int1_d5_d5","baseline_cif_int1_d5_d6","baseline_cif_int1_d5_d7","baseline_cif_int1_d5_d8","baseline_cif_int1_d5_d9","baseline_cif_int1_d5_d10","baseline_cif_int1_d5_d11","baseline_cif_int1_d5_d12","baseline_cif_int1_d5_d13","baseline_cif_int1_d5_d14","baseline_cif_int1_d5_d15","baseline_cif_int1_d5_d16","baseline_cif_int1_d5_d17","baseline_cif_int1_d5_d18","baseline_cif_int1_d5_d19","baseline_cif_int1_d5_d20","baseline_cif_int1_d5_d21","baseline_cif_int1_d5_d22","baseline_cif_int1_d5_d23","baseline_cif_int1_d5_d24","baseline_cif_int1_d5_d25","baseline_cif_int1_d5_d26","baseline_cif_int1_d5_d27","baseline_cif_int1_d5_d28","baseline_cif_int1_d5_d29","baseline_cif_int1_d5_d30","baseline_cif_int1_d5_d31","baseline_cif_int1_d5_d32","baseline_cif_int1_d5_d33","baseline_cif_int1_d5_d34","baseline_cif_int1_d5_d35","baseline_cif_int1_d5_d36")], na.rm=TRUE)
 
-techs$min5_cif <- rowMeans(techs[, c("min5_cif_int1","min5_cif_int2","min5_cif_int3","min5_cif_int4","min5_cif_int5","min5_cif_int6","min5_cif_int7","min5_cif_int8","min5_cif_int9","min5_cif_int10","min5_cif_int11","min5_cif_int12","min5_cif_int13","min5_cif_int14","min5_cif_int15","min5_cif_int16","min5_cif_int17","min5_cif_int18","min5_cif_int19","min5_cif_int20","min5_cif_int21","min5_cif_int22","min5_cif_int23","min5_cif_int24","min5_cif_int25","min5_cif_int26","min5_cif_int27","min5_cif_int28","min5_cif_int29","min5_cif_int30","min5_cif_int31","min5_cif_int32","min5_cif_int33","min5_cif_int34","min5_cif_int35","min5_cif_int36")], na.rm=TRUE)
+techs$cif_2 <- rowMeans(techs[, c("min5_cif_int1","min5_cif_int2","min5_cif_int3","min5_cif_int4","min5_cif_int5","min5_cif_int6","min5_cif_int7","min5_cif_int8","min5_cif_int9","min5_cif_int10","min5_cif_int11","min5_cif_int12","min5_cif_int13","min5_cif_int14","min5_cif_int15","min5_cif_int16","min5_cif_int17","min5_cif_int18","min5_cif_int19","min5_cif_int20","min5_cif_int21","min5_cif_int22","min5_cif_int23","min5_cif_int24","min5_cif_int25","min5_cif_int26","min5_cif_int27","min5_cif_int28","min5_cif_int29","min5_cif_int30","min5_cif_int31","min5_cif_int32","min5_cif_int33","min5_cif_int34","min5_cif_int35","min5_cif_int36")], na.rm=TRUE)
 
-techs$min10_cif <- rowMeans(techs[, c("min10_cif_int1","min10_cif_int2","min10_cif_int3","min10_cif_int4","min10_cif_int5","min10_cif_int6","min10_cif_int7","min10_cif_int8","min10_cif_int9","min10_cif_int10","min10_cif_int11","min10_cif_int12","min10_cif_int13","min10_cif_int14","min10_cif_int15","min10_cif_int16","min10_cif_int17","min10_cif_int18","min10_cif_int19","min10_cif_int20","min10_cif_int21","min10_cif_int22","min10_cif_int23","min10_cif_int24","min10_cif_int25","min10_cif_int26","min10_cif_int27","min10_cif_int28","min10_cif_int29","min10_cif_int30","min10_cif_int31","min10_cif_int32","min10_cif_int33","min10_cif_int34","min10_cif_int35","min10_cif_int36")], na.rm=TRUE)
+techs$cif_3 <- rowMeans(techs[, c("min10_cif_int1","min10_cif_int2","min10_cif_int3","min10_cif_int4","min10_cif_int5","min10_cif_int6","min10_cif_int7","min10_cif_int8","min10_cif_int9","min10_cif_int10","min10_cif_int11","min10_cif_int12","min10_cif_int13","min10_cif_int14","min10_cif_int15","min10_cif_int16","min10_cif_int17","min10_cif_int18","min10_cif_int19","min10_cif_int20","min10_cif_int21","min10_cif_int22","min10_cif_int23","min10_cif_int24","min10_cif_int25","min10_cif_int26","min10_cif_int27","min10_cif_int28","min10_cif_int29","min10_cif_int30","min10_cif_int31","min10_cif_int32","min10_cif_int33","min10_cif_int34","min10_cif_int35","min10_cif_int36")], na.rm=TRUE)
 
-techs$min15_cif <- rowMeans(techs[, c("min15_cif_int1","min15_cif_int2","min15_cif_int3","min15_cif_int4","min15_cif_int5","min15_cif_int6","min15_cif_int7","min15_cif_int8","min15_cif_int9","min15_cif_int10","min15_cif_int11","min15_cif_int12","min15_cif_int13","min15_cif_int14","min15_cif_int15","min15_cif_int16","min15_cif_int17","min15_cif_int18","min15_cif_int19","min15_cif_int20","min15_cif_int21","min15_cif_int22","min15_cif_int23","min15_cif_int24","min15_cif_int25","min15_cif_int26","min15_cif_int27","min15_cif_int28","min15_cif_int29","min15_cif_int30","min15_cif_int31","min15_cif_int32","min15_cif_int33","min15_cif_int34","min15_cif_int35","min15_cif_int36")], na.rm=TRUE)
+techs$cif_4 <- rowMeans(techs[, c("min15_cif_int1","min15_cif_int2","min15_cif_int3","min15_cif_int4","min15_cif_int5","min15_cif_int6","min15_cif_int7","min15_cif_int8","min15_cif_int9","min15_cif_int10","min15_cif_int11","min15_cif_int12","min15_cif_int13","min15_cif_int14","min15_cif_int15","min15_cif_int16","min15_cif_int17","min15_cif_int18","min15_cif_int19","min15_cif_int20","min15_cif_int21","min15_cif_int22","min15_cif_int23","min15_cif_int24","min15_cif_int25","min15_cif_int26","min15_cif_int27","min15_cif_int28","min15_cif_int29","min15_cif_int30","min15_cif_int31","min15_cif_int32","min15_cif_int33","min15_cif_int34","min15_cif_int35","min15_cif_int36")], na.rm=TRUE)
 
-techs$min20_cif <- rowMeans(techs[, c("min20_cif_int1","min20_cif_int2","min20_cif_int3","min20_cif_int4","min20_cif_int5","min20_cif_int6","min20_cif_int7","min20_cif_int8","min20_cif_int9","min20_cif_int10","min20_cif_int11","min20_cif_int12","min20_cif_int13","min20_cif_int14","min20_cif_int15","min20_cif_int16","min20_cif_int17","min20_cif_int18","min20_cif_int19","min20_cif_int20","min20_cif_int21","min20_cif_int22","min20_cif_int23","min20_cif_int24","min20_cif_int25","min20_cif_int26","min20_cif_int27","min20_cif_int28","min20_cif_int29","min20_cif_int30","min20_cif_int31","min20_cif_int32","min20_cif_int33","min20_cif_int34","min20_cif_int35","min20_cif_int36")], na.rm=TRUE)
+techs$cif_5 <- rowMeans(techs[, c("min20_cif_int1","min20_cif_int2","min20_cif_int3","min20_cif_int4","min20_cif_int5","min20_cif_int6","min20_cif_int7","min20_cif_int8","min20_cif_int9","min20_cif_int10","min20_cif_int11","min20_cif_int12","min20_cif_int13","min20_cif_int14","min20_cif_int15","min20_cif_int16","min20_cif_int17","min20_cif_int18","min20_cif_int19","min20_cif_int20","min20_cif_int21","min20_cif_int22","min20_cif_int23","min20_cif_int24","min20_cif_int25","min20_cif_int26","min20_cif_int27","min20_cif_int28","min20_cif_int29","min20_cif_int30","min20_cif_int31","min20_cif_int32","min20_cif_int33","min20_cif_int34","min20_cif_int35","min20_cif_int36")], na.rm=TRUE)
 
-techs$min25_cif <- rowMeans(techs[, c("min25_cif_int1","min25_cif_int2","min25_cif_int3","min25_cif_int4","min25_cif_int5","min25_cif_int6","min25_cif_int7","min25_cif_int8","min25_cif_int9","min25_cif_int10","min25_cif_int11","min25_cif_int12","min25_cif_int13","min25_cif_int14","min25_cif_int15","min25_cif_int16","min25_cif_int17","min25_cif_int18","min25_cif_int19","min25_cif_int20","min25_cif_int21","min25_cif_int22","min25_cif_int23","min25_cif_int24","min25_cif_int25","min25_cif_int26","min25_cif_int27","min25_cif_int28","min25_cif_int29","min25_cif_int30","min25_cif_int31","min25_cif_int32","min25_cif_int33","min25_cif_int34","min25_cif_int35","min25_cif_int36")], na.rm=TRUE)
+techs$cif_6 <- rowMeans(techs[, c("min25_cif_int1","min25_cif_int2","min25_cif_int3","min25_cif_int4","min25_cif_int5","min25_cif_int6","min25_cif_int7","min25_cif_int8","min25_cif_int9","min25_cif_int10","min25_cif_int11","min25_cif_int12","min25_cif_int13","min25_cif_int14","min25_cif_int15","min25_cif_int16","min25_cif_int17","min25_cif_int18","min25_cif_int19","min25_cif_int20","min25_cif_int21","min25_cif_int22","min25_cif_int23","min25_cif_int24","min25_cif_int25","min25_cif_int26","min25_cif_int27","min25_cif_int28","min25_cif_int29","min25_cif_int30","min25_cif_int31","min25_cif_int32","min25_cif_int33","min25_cif_int34","min25_cif_int35","min25_cif_int36")], na.rm=TRUE)
 
-techs$min30_cif <- rowMeans(techs[, c("min30_cif_int1","min30_cif_int2","min30_cif_int3","min30_cif_int4","min30_cif_int5","min30_cif_int6","min30_cif_int7","min30_cif_int8","min30_cif_int9","min30_cif_int10","min30_cif_int11","min30_cif_int12","min30_cif_int13","min30_cif_int14","min30_cif_int15","min30_cif_int16","min30_cif_int17","min30_cif_int18","min30_cif_int19","min30_cif_int20","min30_cif_int21","min30_cif_int22","min30_cif_int23","min30_cif_int24","min30_cif_int25","min30_cif_int26","min30_cif_int27","min30_cif_int28","min30_cif_int29","min30_cif_int30","min30_cif_int31","min30_cif_int32","min30_cif_int33","min30_cif_int34","min30_cif_int35","min30_cif_int36")], na.rm=TRUE)
+techs$cif_7 <- rowMeans(techs[, c("min30_cif_int1","min30_cif_int2","min30_cif_int3","min30_cif_int4","min30_cif_int5","min30_cif_int6","min30_cif_int7","min30_cif_int8","min30_cif_int9","min30_cif_int10","min30_cif_int11","min30_cif_int12","min30_cif_int13","min30_cif_int14","min30_cif_int15","min30_cif_int16","min30_cif_int17","min30_cif_int18","min30_cif_int19","min30_cif_int20","min30_cif_int21","min30_cif_int22","min30_cif_int23","min30_cif_int24","min30_cif_int25","min30_cif_int26","min30_cif_int27","min30_cif_int28","min30_cif_int29","min30_cif_int30","min30_cif_int31","min30_cif_int32","min30_cif_int33","min30_cif_int34","min30_cif_int35","min30_cif_int36")], na.rm=TRUE)
 
 
-data_cif <- data.frame(
-  cif = c(techs$baseline_cif_int,techs$min5_cif,techs$min10_cif,techs$min15_cif,techs$min20_cif,techs$min25_cif,techs$min30_cif),
-  time = c(1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7),
-  group = techs$randomization_group,
-   ID = techs$name
-)
-data_cif$group <- as.factor(data_cif$group)
-data_cif$ID <- as.factor(data_cif$ID)
+#make long
+long_techs <- techs %>%
+  gather(key = "time_point", value = "cif", cif_1, cif_2, cif_3, cif_4, cif_5, cif_6, cif_7)
+#plot each participant
+ggplot(long_techs, aes(x = time_point, y = cif, group = name)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~ name, nrow = 3) +  # Assuming 12 participants, arrange them in 3 rows
+  labs(x = "Time Point", y = "CIF", title = "Symptom Score")
+#plot all participants
+ggplot(long_techs, aes(x = time_point, y = cif, color = factor(name))) +
+  geom_point() +
+  geom_line(aes(group = name)) +
+  labs(x = "Time Point", y = "CIF", title = "Symptom Score Over Time for All Participants")
+
+
+long_techs$group <- as.factor(long_techs$group)
+long_techs$ID <- as.factor(long_techs$ID)
 #plot cif line graphs
 library(ggplot2)
 library(reshape2)
 
 data_long <- melt(data_cif, id.vars = "time")
 ggplot(data_cif, aes(x = time, y = cif, color = ID)) +
-  geom_line() +
-  labs(title = "Symptoms across intervention", x = "30 Minute session", y = "Symptom Score")
+  geom_line() + 
+  theme_bw() +
+  theme_classic(base_size = 25) +
+  geom_line(size = 2) +
+  labs(title = "Symptoms across intervention", x = "30 Minute session", y = "Symptom Score") 
 
 ```
 
 
 ```{r pre/post data}
 #plot differences in pre/post data
-data_long <- melt(data_cif, id.vars = "time")
-techs$timepoint <- as.factor(techs$timepoint)
-techs$id <- as.factor(techs$id)
-ggplot(techs, aes(x = timepoint, y = bess_sum, group = id, color = id)) +
-  geom_line() +
-  labs(title = "Bess", x = "Timepoint", y = "Total # of Errors")
 
-ggplot(data_hr, aes(x = time, y = HR_perc, group = ID, color = ID)) +
+techs_long$timepoint <- as.factor(techs_long$timepoint)
+techs_long$ID <- as.factor(techs_long$ID)
+
+
+ggplot(techs_long, aes(x = timepoint, y = bess, group = ID, color = ID)) +
   geom_line() +
-  labs(title = "HR Max across intervention", x = "30 Minute session", y = "% of HR max")
+    theme_bw() +
+  theme_classic(base_size = 25) +
+    geom_line(size = 2) +
+  labs(title = "Bess", x = "Timepoint", y = "Total # of Errors")
+```
+
+
+```{r pre/post data}
+long_df_vf_a <- techs %>%
+  select(name, randomization_group, verbal_fluency_a, verbal_fluency_a_v2) %>%
+  gather(key = "timepoint", value = "value", verbal_fluency_a, verbal_fluency_a_v2)
+long_df_vf_a <- long_df_vf_a %>%
+  mutate(timepoint = ifelse(timepoint == "verbal_fluency_a", "1", "2"))
+
+ggplot(long_df_vf_a, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15) +
+ geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "Verbal Fluency A", x = "Timepoint", y = "# of words")
+long_df_vf_f <- techs %>%
+  select(name, randomization_group, verbal_fluency_f, verbal_fluency_f_v2) %>%
+  gather(key = "timepoint", value = "value", verbal_fluency_f, verbal_fluency_f_v2)
+long_df_vf_f <- long_df_vf_f %>%
+  mutate(timepoint = ifelse(timepoint == "verbal_fluency_f", "1", "2"))
+ggplot(long_df_vf_f, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line() +
+  theme_bw() +
+  theme_classic(base_size = 15) +
+ geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "Verbal Fluency F", x = "Timepoint", y = "# of words")
+techs$verbal_fluency_all <- techs$verbal_fluency_s + techs$verbal_fluency_a + techs$verbal_fluency_f
+techs$verbal_fluency_all_v2 <- techs$verbal_fluency_s_v2 + techs$verbal_fluency_a_v2 + techs$verbal_fluency_f_v2
+
+long_df_vf_s <- techs %>%
+  select(name, randomization_group, verbal_fluency_s, verbal_fluency_s_v2) %>%
+  gather(key = "timepoint", value = "value", verbal_fluency_s, verbal_fluency_s_v2)
+long_df_vf_s <- long_df_vf_s %>%
+  mutate(timepoint = ifelse(timepoint == "verbal_fluency_s", "1", "2"))
+ggplot(long_df_vf_s, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line() +
+  theme_bw() +
+  theme_classic(base_size = 15) +
+ geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "Verbal Fluency S", x = "Timepoint", y = "# of words")
+long_df_vf_cat <- techs %>%
+  select(name, randomization_group, verbal_fluency_animals, verbal_fluency_animals_v2) %>%
+  gather(key = "timepoint", value = "value", verbal_fluency_animals, verbal_fluency_animals_v2)
+long_df_vf_cat <- long_df_vf_cat %>%
+  mutate(timepoint = ifelse(timepoint == "verbal_fluency_animals", "1", "2"))
+ggplot(long_df_vf_cat, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15) +
+  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "Verbal Fluency Categories", x = "Timepoint", y = "# of words")
+long_df_vf_all <- techs %>%
+  select(name, randomization_group, verbal_fluency_all, verbal_fluency_all_v2) %>%
+  gather(key = "timepoint", value = "value", verbal_fluency_all, verbal_fluency_all_v2)
+long_df_vf_all <- long_df_vf_all %>%
+  mutate(timepoint = ifelse(timepoint == "verbal_fluency_all", "1", "2"))
+ggplot(long_df_vf_all, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+   theme_bw() +
+  theme_classic(base_size = 15) +
+  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "Verbal Fluency All Phonemic", x = "Timepoint", y = "# of words")
+```
+
+
+```{r pre/post data}
+long_df_vo2 <- techs %>%
+  select(name, randomization_group, relative_vo2max_baseline, relative_vo2max_end) %>%
+  gather(key = "timepoint", value = "value", relative_vo2max_baseline, relative_vo2max_end)
+long_df_vo2 <- long_df_vo2 %>%
+  mutate(timepoint = ifelse(timepoint == "relative_vo2max_baseline", "1", "2"))
+ggplot(long_df_vo2, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+   theme_bw() +
+  theme_classic(base_size = 15) +
+  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "Relative VO2max", x = "Timepoint", y = "VO2Max")
+
+long_df_bess <- techs %>%
+  select(name, randomization_group, bess_sum_baseline, bess_sum_endpoint) %>%
+  gather(key = "timepoint", value = "value", bess_sum_baseline, bess_sum_endpoint)
+long_df_bess <- long_df_bess %>%
+  mutate(timepoint = ifelse(timepoint == "bess_sum_baseline", "1", "2"))
+ggplot(long_df_bess, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+   theme_bw() +
+  theme_classic(base_size = 15) +
+  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "BESS", x = "Timepoint", y = "BESS")
+```
+
+
+```{r pre/post data}
+long_df_tmt_a <- techs %>%
+  select(name, randomization_group, tm_time_a, tm_time_a_v2) %>%
+  gather(key = "timepoint", value = "value",  tm_time_a, tm_time_a_v2)
+long_df_tmt_a <- long_df_tmt_a %>%
+  mutate(timepoint = ifelse(timepoint == "tm_time_a", "1", "2"))
+time_components <- strsplit(long_df_tmt_a$value, ":")
+long_df_tmt_a$value <- sapply(time_components, function(x) as.numeric(x[1]) * 60 + as.numeric(x[2]))
+ggplot(long_df_tmt_a, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+   theme_bw() +
+  theme_classic(base_size = 15) +
+  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "TMT A", x = "Timepoint", y = "TMTA (time)")
+
+long_df_tmt_b <- techs %>%
+  select(name, randomization_group, tm_time_b, tm_time_b_v2) %>%
+  gather(key = "timepoint", value = "value",  tm_time_b, tm_time_b_v2)
+long_df_tmt_a <- long_df_tmt_a %>%
+  mutate(timepoint = ifelse(timepoint == "tm_time_b", "1", "2"))
+time_components <- strsplit(long_df_tmt_b$value, ":")
+long_df_tmt_b$value <- sapply(time_components, function(x) as.numeric(x[1]) * 60 + as.numeric(x[2]))
+ggplot(long_df_tmt_b, aes(x = timepoint, y = value, group = name, color = name)) +
+  geom_line() +
+  theme_bw() +
+  theme_classic(base_size = 15) +
+  geom_line(size = 2) + 
+  labs(title = "TMT B", x = "Timepoint", y = "TMTB (time)")
+ggplot(long_df_tmt_b, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+   theme_bw() +
+  theme_classic(base_size = 15) +
+  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "TMT B", x = "Timepoint", y = "TMTB (time)")
+
+```
+
+```{r}
+#hvlt
+techs$hvlt_IR_all <- techs$t1_correct + techs$t2_correct + techs$t3_correct 
+techs$hvlt_IR_all_end <- techs$t1_correct_v2 + techs$t2_correct_v2 + techs$t3_correct_v2
+
+long_df_hvlt <- techs %>%
+  select(name, randomization_group, hvlt_IR_all, hvlt_IR_all_end) %>%
+  gather(key = "timepoint", value = "value", hvlt_IR_all, hvlt_IR_all_end)
+long_df_hvlt <- long_df_hvlt %>%
+  mutate(timepoint = ifelse(timepoint == "hvlt_IR_all", "1", "2"))
+ggplot(long_df_hvlt, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+   theme_bw() +
+  theme_classic(base_size = 15) +
+    geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "HVLT IR", x = "Timepoint", y = "HVLT IR")
+long_df_hvlt_delay <- techs %>%
+  select(name, randomization_group, t4_correct, t4_correct_v2) %>%
+  gather(key = "timepoint", value = "value", t4_correct, t4_correct_v2)
+long_df_hvlt_delay <- long_df_hvlt_delay %>%
+  mutate(timepoint = ifelse(timepoint == "t4_correct", "1", "2"))
+ggplot(long_df_hvlt_delay, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15) +
+  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+
+  labs(title = "HVLT Delay", x = "Timepoint", y = "HVLT Delay")
+
+long_df_hvlt_recognition <- techs %>%
+  select(name, randomization_group, recognition_score, recognition_score_v2) %>%
+  gather(key = "timepoint", value = "value", recognition_score, recognition_score_v2)
+long_df_hvlt_recognition <- long_df_hvlt_recognition %>%
+  mutate(timepoint = ifelse(timepoint == "recognition_score", "1", "2"))
+ggplot(long_df_hvlt_recognition, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15) +
+   geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "HVLT Recognition", x = "Timepoint", y = "HVLT Recognition (# errors)")
+
+```
+
+
+```{r}
+#histogram of sex by group
+ggplot(techs, aes(x = factor(sex_factor), fill = as.factor(randomization_group))) +
+  geom_histogram(stat = "count", position = "dodge") +  # Adjusting position of bars
+  labs(x = "Category", y = "Count", title = "Count of Each Category for Sex") +
+  scale_fill_manual(values = c("black", "red"))
+#histogram of age by group
+ggplot(techs, aes(x = factor(age), fill = as.factor(randomization_group))) +
+  geom_histogram(stat = "count", position = "dodge") +  # Adjusting position of bars
+  labs(x = "Category", y = "Count", title = "Count of Each Category for Age") +
+  scale_fill_manual(values = c("black", "red"))
+ggplot(techs, aes(x = as.factor(randomization_group), y = age, fill = as.factor(randomization_group))) +
+  geom_violin() + 
+  geom_point(position = position_jitterdodge(), size = 2, color = "white") +
+  stat_summary(fun = mean, geom = "text", aes(label = round(..y.., digits = 2)),
+               vjust = 1.5, size = 4, color = "white") +
+  labs(x = "Category", y = "Age", title = "Age") +
+  scale_fill_manual(values = c("black", "red"))
+#histogram of age by group
+ggplot(techs, aes(x = factor(days_since_injury), fill = as.factor(randomization_group))) +
+  geom_histogram(stat = "count", position = "dodge") +  # Adjusting position of bars
+  labs(x = "Category", y = "Count", title = "Days Since Injury") +
+  scale_fill_manual(values = c("black", "red"))
+ggplot(techs, aes(x = as.factor(randomization_group), y = days_since_injury, fill = as.factor(randomization_group))) +
+  geom_violin() + 
+  geom_point(position = position_jitterdodge(), size = 2, color = "white") +
+  stat_summary(fun = mean, geom = "text", aes(label = round(..y.., digits = 2)),
+               vjust = 1.5, size = 4, color = "white") +
+  labs(x = "Category", y = "Count", title = "Days Since Injury") +
+  scale_fill_manual(values = c("black", "red"))
 
 ```
