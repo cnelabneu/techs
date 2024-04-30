@@ -6,7 +6,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(readxl)
-techs <- read_excel("~/Downloads/techs.xlsx", 
+#techs <- read_excel("~/Downloads/techs.xlsx", 
     sheet = "Sheet2")
 View(techs)
 library(readxl)
@@ -21,6 +21,8 @@ library(tidyr)
 
 techs <- read_excel("TECHS_DATA_2024-03-21_1340.xlsx")
 View(techs)
+techs <- TECHS_DATA_2024_04_22_1039
+
 ```
 
 #TECHS
@@ -32,7 +34,9 @@ techs$annual_income_factor <- as.factor(techs$annual_income)
 techs$ethnicity_factor <- as.factor(techs$ethnicity)
 techs$race_factor <- as.factor(techs$race)
 
-
+mean(techs$age)
+sd(techs$age)
+merangean(techs$age)
 techs <- techs %>%
   mutate(sex_factor = ifelse(sex_factor == 0, "Female", "Male"))
 techs <- techs %>%
@@ -144,12 +148,26 @@ ggplot(long_techs, aes(x = time_point, y = heart_rate_perc, group = name)) +
   facet_wrap(~ name, nrow = 3) +  # Assuming 12 participants, arrange them in 3 rows
   labs(x = "Time Point", y = "Heart Rate % ", title = "Heart Rate % Over Time for Each Participant")
 
+ggplot(long_techs, aes(x = time_point, y = heart_rate_perc, color = factor(randomization_group))) +
+    geom_line(aes(group = name), alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, aes(group = randomization_group), size = 3) +  # Add trend lines
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) +
+  labs(x = "Time (Minutes)", y = "Heart Rate (% of max)", title = "HR Over Time for All Participants") +
+  scale_x_discrete(labels = c("baseline_hr_perc" = "0", "min05_hr_perc" = "5", "min10_hr_perc" = "10", "min15_hr_perc" = "15", "min20_hr_perc" = "20", "min25_hr_perc" = "25", "min30_hr_perc" = "30")) +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) + 
+    guides(color = guide_legend(title = "Randomization Group"))  # Set legend title
 
 data_hr$group <- as.factor(data_hr$group)
 data_hr$ID <- as.factor(data_hr$ID)
 #plot HR line graphs
 library(ggplot2)
-install.packages("reshape2")
+#install.packages("reshape2")
 library(reshape2)
 
 data_long <- melt(data_hr, id.vars = "time")
@@ -190,11 +208,24 @@ ggplot(long_techs, aes(x = time_point, y = cif, group = name)) +
   geom_point() +
   facet_wrap(~ name, nrow = 3) +  # Assuming 12 participants, arrange them in 3 rows
   labs(x = "Time Point", y = "CIF", title = "Symptom Score")
+
 #plot all participants
-ggplot(long_techs, aes(x = time_point, y = cif, color = factor(name))) +
-  geom_point() +
-  geom_line(aes(group = name)) +
-  labs(x = "Time Point", y = "CIF", title = "Symptom Score Over Time for All Participants")
+long_techs$time_point1 <- factor(long_techs$time_point, labels = c("0", "5", "10", "15", "20", "25", "30"))
+
+ggplot(long_techs, aes(x = time_point, y = cif, color = factor(randomization_group))) +
+    geom_line(aes(group = name), alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, aes(group = randomization_group), size = 3) +  # Add trend lines
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) +
+  labs(x = "Time (Minutes)", y = "Symptom Score", title = "Symptom Score Over Time for All Participants") +
+  scale_x_discrete(labels = c("cif_1" = "0", "cif_2" = "5", "cif_3" = "10", "cif_4" = "15", "cif_5" = "20", "cif_6" = "25", "cif_7" = "30")) +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) + 
+    guides(color = guide_legend(title = "Randomization Group"))  # Set legend title
 
 
 long_techs$group <- as.factor(long_techs$group)
@@ -444,4 +475,184 @@ ggplot(techs, aes(x = as.factor(randomization_group), y = days_since_injury, fil
   labs(x = "Category", y = "Count", title = "Days Since Injury") +
   scale_fill_manual(values = c("black", "red"))
 
+```
+```{r}
+#adherence plot
+techs1 <- techs[-14, ]
+
+techs <- left_join(techs, adherence, by = "name")
+
+ggplot(techs1, aes(x = as.factor(randomization_group), y = Adherence, fill = as.factor(randomization_group))) +
+  geom_boxplot() + 
+  geom_point() +
+  labs(x = "Category", y = "Adherence (%)", title = "Age") +
+  scale_fill_manual(values = c("#FBAE2D", "#052844"))  +
+  scale_x_discrete(labels = c("0" = "Aerobic", "1" = "Balance")) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "white"),
+        axis.line = element_line(color = "black"),  
+        axis.ticks = element_line(color = "black")) 
+
+#techs tbi poster graphs
+ggplot(long_techs, aes(x = time_point, y = heart_rate_perc, color = factor(randomization_group))) +
+    geom_line(aes(group = name), alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, aes(group = randomization_group), size = 3) +  # Add trend lines
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) +
+  labs(x = "Time (Minutes)", y = "Heart Rate (% of max)", title = "HR Over Time for All Participants") +
+  scale_x_discrete(labels = c("baseline_hr_perc" = "0", "min05_hr_perc" = "5", "min10_hr_perc" = "10", "min15_hr_perc" = "15", "min20_hr_perc" = "20", "min25_hr_perc" = "25", "min30_hr_perc" = "30")) +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) + 
+    guides(color = guide_legend(title = "Randomization Group"))  # Set legend title
+
+ggplot(long_df_hvlt_recognition, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 10)  +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) +
+     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
+  labs(title = "HVLT Recognition", x = "Timepoint", y = "HVLT Recognition (# errors)")
+ggplot(long_df_hvlt_delay, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 10)  +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) +
+     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
+  labs(title = "HVLT Delayed Recall", x = "Timepoint", y = "HVLT Delayed Recall (# of words)")
+ggplot(long_df_hvlt, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15)  +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) +
+     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
+  labs(title = "HVLT Immediate Recall", x = "Timepoint", y = "HVLT Recall (# of words)")
+ggplot(long_df_tmt_b, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15)  +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) +
+  scale_x_discrete(labels = c("tm_time_b" = "Pre", "tm_time_b_v2" = "Post")) +
+     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
+  labs(title = "Trail Making Test B", x = "Timepoint", y = "Time (seconds)")
+
+ggplot(long_df_tmt_a, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 10)  +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) +
+  scale_x_discrete(labels = c("tm_time_a" = "Pre", "tm_time_a_v2" = "Post")) +
+     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
+  labs(title = "Trail Making Test A", x = "Timepoint", y = "Time (seconds)")
+
+ggplot(long_df_vo2, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15)  +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) +
+  scale_x_discrete(labels = c("1" = "Pre", "2" = "Post")) +
+     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
+  labs(title = "Relative VO2 Max", x = "Timepoint", y = "Relative VO2 Max (mL/kg/min)")
+
+ggplot(long_df_bess, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15)  +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) +
+  scale_x_discrete(labels = c("1" = "Pre", "2" = "Post")) +
+     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
+  labs(title = "Balance", x = "Timepoint", y = "BESS (# of Errors)")
+
+
+ggplot(long_df_vf_all, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 10)  +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) +
+  scale_x_discrete(labels = c("1" = "Pre", "2" = "Post")) +
+     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
+  labs(title = "Verbal Fluency", x = "Timepoint", y = "VF All (# of Words)")
+
+ggplot(long_df_vf_cat, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 20)  +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) +
+  scale_x_discrete(labels = c("1" = "Pre", "2" = "Post")) +
+     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
+  labs(title = "Verbal Fluency (Category)", x = "Timepoint", y = "VF Category (# of Words)")
+
+
+mean(subset(techs1, randomization_group == 1)$Adherence)
+mean(subset(techs1, randomization_group == 0)$Adherence)
+mean(techs1$Adherence)
+save(techs, file = "techs.RData")
+```
 ```

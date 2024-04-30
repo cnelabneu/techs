@@ -106,8 +106,12 @@ techs$cog_func_raw_v2 <- rowSums(techs[, c("mind_v2", "memory_v2", "keep_track_v
 techs$cog_func_t_v2 <- recode(techs$cog_func_raw_v2, "8" = "22.41", "9" = "25.73", "10" = "27.45", "11" = "28.90", "12" = "30.11", "13" = "31.18", "14" = "32.15", "15" = "33.06", "16" = "33.92", "17" = "34.75", "18" = "35.56", "19" = "36.36", "20" = "37.15", "21" = "37.93", "22" = "38.71", "23" = "39.50", "24" = "40.29", "25" = "41.09", "26" = "41.90", "27" = "42.72", "28" = "43.57", "29" = "44.43", "30" = "45.31", "31" = "1 46.22", "32" = "47.17", "33" = "48.18", "34" = "49.26", "35" = "50.45", "36" = "50.45", "37" = "58.03", "38" = "59.95", "39" = "62.52", "40" = "67.09")
 
 #sum up total global score
-techs$global_v2 <- techs$gmh_raw_v2 + techs$gph_raw_v2 + techs$cog_func_raw_v2
-techs$global_v1 <- techs$gmh_raw + techs$gph_raw + techs$cog_func_raw 
+techs$global_v2 <- rowSums(techs[, c("gmh_raw_v2", "gph_raw_v2", "cog_func_raw_v2")], na.rm = TRUE)
+techs$global_v1 <- rowSums(techs[, c("gmh_raw", "gph_raw", "cog_func_raw")], na.rm = TRUE)
+techs$global_v2[techs$global_v2 == 0] <- NA
+
+techs$global_v2_t <- rowSums(techs[, c("gmh_t_v2", "gph_t_v2", "cog_func_t_v2")], na.rm = TRUE)
+techs$global_v1_t <- rowSums(techs[, c("gmh_t", "gph_t", "cog_func_t")], na.rm = TRUE)
 ```
 
 ```{r}
@@ -119,6 +123,16 @@ long_df_promis_gph <- techs %>%
   gather(key = "timepoint", value = "value", gph_raw, gph_raw_v2)
 long_df_promis_gph <- long_df_promis_gph %>%
   mutate(timepoint = ifelse(timepoint == "gph_raw", "1", "2"))
+long_df_promis_global <- techs %>%
+  select(name, randomization_group, global_v1, global_v2) %>%
+  gather(key = "timepoint", value = "value", global_v1, global_v2)
+long_df_promis_global <- long_df_promis_global %>%
+  mutate(timepoint = ifelse(timepoint == "global", "1", "2"))
+long_df_promis_gmh <- techs %>%
+  select(name, randomization_group, gmh_raw, gmh_raw_v2) %>%
+  gather(key = "timepoint", value = "value", gmh_raw, gmh_raw_v2)
+long_df_promis_gmh <- long_df_promis_gmh %>%
+  mutate(timepoint = ifelse(timepoint == "gmh_raw", "1", "2"))
 
 long_df_promis_gmh <- techs %>%
   select(name, randomization_group, gmh_raw, gmh_raw_v2) %>%
@@ -167,6 +181,54 @@ ggplot(long_df_promis_global, aes(x = timepoint, y = value, group = name, color 
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "Global Health from PROMIS", x = "Timepoint", y = "PROMIS (Global)")
 
+ggplot(long_df_promis_global, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 10)  +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) +
+  scale_x_discrete(labels = c("1" = "Pre", "2" = "Post")) +
+     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
+  labs(title = "Global Health from PROMIS", x = "Timepoint", y = "PROMIS (Global)")
+
+ggplot(long_df_promis_cog, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 10)  +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) +
+  scale_x_discrete(labels = c("1" = "Pre", "2" = "Post")) +
+     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
+  labs(title = "Cognitive Functioning from PROMIS", x = "Timepoint", y = "PROMIS (Cognitive Functioning)")
+
+
+ggplot(long_df_promis_gph, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 10)  +
+  theme(panel.grid.major = element_blank(),    # Remove major gridlines
+        panel.grid.minor = element_blank(),    # Remove minor gridlines
+        panel.background = element_rect(fill = "white"),  # Set background to white
+        axis.line = element_line(color = "black"),  # Specify axis line color
+        axis.ticks = element_line(color = "black")) +
+  scale_x_discrete(labels = c("1" = "Pre", "2" = "Post")) +
+     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("#FBAE2D", "#052844"), 
+                     name = "Randomization Group",
+                     labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
+  labs(title = "Physical Functioning from PROMIS", x = "Timepoint", y = "PROMIS (Physical Functioning)")
 ```
 
 
