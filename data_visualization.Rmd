@@ -653,6 +653,6 @@ ggplot(long_df_vf_cat, aes(x = timepoint, y = value, group = name, color = as.fa
 mean(subset(techs1, randomization_group == 1)$Adherence)
 mean(subset(techs1, randomization_group == 0)$Adherence)
 mean(techs1$Adherence)
-save(techs, file = "techs.RData")
+
 ```
 ```

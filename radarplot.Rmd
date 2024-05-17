@@ -1,0 +1,50 @@
+---
+title: "RadarPlot"
+output: html_document
+date: '2024-05-17'
+---
+
+```{r setup, include=FALSE}
+install.packages("fmsb")
+library(fmsb)
+
+```
+
+## R Markdown
+
+
+
+```{r}
+techs12 <- data.frame(
+    Cognition = c(3, 5),
+    Brain = c(10, 20),
+    Symptoms = c(3.7, 11.5),
+    Fitness = c(8.7, 20),
+    Balance = c(7, 8)
+)
+row.names(techs12) <- c("Baseline", "Endpoint")
+techs12
+
+max_min <- data.frame(
+    Cognition = c(30, 0),
+    Brain = c(20, 0),
+    Symptoms = c(20, 0),
+    Fitness = c(50, 0),
+    Balance = c(20, 0)
+)
+techs12_plot <- rbind(max_min, techs12)
+
+radarchart(
+    techs12_plot, axistype = 1,
+    # Customizing the plot appearance
+    pcol = c("#00AFBB", "#E7B800"),    # Colors for the lines
+    pfcol = c(rgb(0.2,0.5,0.5,0.5), rgb(0.8,0.2,0.5,0.5)), # Colors for the filled areas
+    plwd = 2,                   # Line width
+    plty = 1,                   # Line type
+    cglcol = "grey",            # Color of the grid lines
+    cglty = 1,                  # Type of the grid lines
+    axislabcol = "grey",        # Color of the axis labels
+    caxislabels = seq(0, 20, 5),# Axis labels
+    vlcex = 0.8                 # Font size for the variable labels
+)
+```
