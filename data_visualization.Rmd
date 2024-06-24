@@ -653,6 +653,47 @@ ggplot(long_df_vf_cat, aes(x = timepoint, y = value, group = name, color = as.fa
 mean(subset(techs1, randomization_group == 1)$Adherence)
 mean(subset(techs1, randomization_group == 0)$Adherence)
 mean(techs1$Adherence)
+```
 
+
+```{r}
+datetime_string <- "1899-12-31 00:43:00 UTC"
+
+# Convert the datetime string to POSIXct
+datetime_posix <- as.POSIXct(datetime_string, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+
+# Convert to numerical seconds since Unix epoch
+seconds_since_epoch <- as.numeric(datetime_posix)
+
+# Print the result
+print(seconds_since_epoch)
 ```
 ```
+```{r}
+#prepost correlations
+
+t.test(techs$verbal_fluency_all, techs$verbal_fluency_all_v2)
+cor.test(techs$verbal_fluency_all, techs$verbal_fluency_all_v2)
+
+t.test(techs$verbal_fluency_animals, techs$verbal_fluency_animals_v2)
+cor.test(techs$verbal_fluency_animals, techs$verbal_fluency_animals_v2)
+
+t.test(techs$tm_time_a, techs$tm_time_a_v2)
+cor.test(techs$tm_time_a, techs$tm_time_a_v2)
+
+t.test(techs$tm_time_b, techs$tm_time_b_v2)
+cor.test(techs$tm_time_b, techs$tm_time_b_v2)
+
+t.test(techs$hvlt_IR_all, techs$hvlt_IR_all_end)
+cor.test(techs$hvlt_IR_all, techs$hvlt_IR_all_end)
+
+t.test(techs$t4_correct, techs$t4_correct_v2)
+cor.test(techs$t4_correct, techs$t4_correct_v2)
+
+t.test(techs$global_v1, techs$global_v2)
+cor.test(techs$global_v1, techs$global_v2)
+
+t.test(techs$bess_sum_baseline, techs$bess_sum_endpoint)
+cor.test(techs$bess_sum_baseline, techs$bess_sum_endpoint)
+```
+

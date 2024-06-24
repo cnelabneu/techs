@@ -98,3 +98,6 @@ ggplot(techs, aes(x = as.factor(randomization_group), y = totalpsqi, fill = as.f
   scale_fill_manual(values = c("black", "red"))
 
 ``` 
+```{r}
+
+```
