@@ -10,6 +10,25 @@ library(dplyr)
 
 ```{r PROMIS Global Health scoring baseline}
 #recoding variables to the right names (specific to techs redcap)
+#add one to each variable since on redcap its scored 0-4 instead of 1-5
+techs$overall_health <- techs$overall_health + 1
+techs$quality_life <- techs$quality_life + 1
+techs$physical_health <- techs$physical_health + 1
+techs$mental_health <- techs$mental_health + 1
+techs$social_satisfaction <- techs$social_satisfaction + 1
+techs$social_activities <- techs$social_activities + 1
+techs$promis_physical_activities <- techs$promis_physical_activities + 1
+techs$promis_emotional <- techs$promis_emotional + 1
+techs$promis_7day_fatigue <- techs$promis_7day_fatigue + 1
+techs$promis_pain <- techs$promis_pain + 1
+techs$mind <- techs$mind + 1
+techs$memory <- techs$memory + 1
+techs$thinking <- techs$thinking + 1
+techs$keep_track <- techs$keep_track + 1
+techs$concentrate <- techs$concentrate + 1
+techs$think_clearly <- techs$think_clearly + 1
+techs$attention <- techs$attention + 1
+techs$remember <- techs$remember + 1
 
 techs$global01 <- techs$overall_health #raw score is fine
 techs$global02 <- techs$quality_life #raw score is fine
@@ -230,6 +249,7 @@ ggplot(long_df_promis_gph, aes(x = timepoint, y = value, group = name, color = a
                      labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
   labs(title = "Physical Functioning from PROMIS", x = "Timepoint", y = "PROMIS (Physical Functioning)")
 ```
+
 
 
 

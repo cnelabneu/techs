@@ -34,7 +34,7 @@ techs$vigorous_score
 techs$moderate_score
 techs$walking_score
 print(techs$total_ipaq)
-techs$total_ipaq_numeric <- as.factor(techs$total_ipaq)
+techs$total_ipaq_numeric <- as.numeric(techs$total_ipaq)
 hist(techs$total_ipaq_numeric)
 
 ggplot(techs, aes(x = factor(total_ipaq))) +

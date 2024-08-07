@@ -53,10 +53,21 @@ techs$sleep_baseline <- as.numeric(techs$sleep_baseline)
 techs$comp3 <- cut(techs$sleep_baseline, 
                        breaks=c(-Inf, 5, 6, 7, Inf), 
                        labels=c("3","2","1", "0"))
-techs$waketime_baseline <- as.numeric(techs$waketime_baseline)
-techs$bedtime_baseline <- as.numeric(techs$bedtime_baseline)
+#make sure waketime and bedtime are in 24 hour format
+techs$actual_sleep <- sapply(1:length(techs$bedtime_baseline), function(i) {
+  bed_time <- techs$bedtime_baseline[i]
+  wake_time <- techs$waketime_baseline[i]
+  
+  # Adjust for crossing midnight
+  if (bed_time > wake_time) {
+    sleep_time <- (24 - bed_time) + wake_time
+  } else {
+    sleep_time <- wake_time - bed_time
+  }
+  
+  return(sleep_time)
+})
 
-techs$actual_sleep <- techs$waketime_baseline - techs$bedtime_baseline
 techs$comp4 <- (techs$sleep_baseline/techs$actual_sleep)*100
 techs$comp4 <- cut(techs$comp4, 
                        breaks=c(-Inf, 65, 74, 84, Inf), 

@@ -330,11 +330,11 @@ ggplot(long_df_vf_all, aes(x = timepoint, y = value, group = name, color = as.fa
 
 
 ```{r pre/post data}
-long_df_vo2 <- techs %>%
-  select(name, randomization_group, relative_vo2max_baseline, relative_vo2max_end) %>%
-  gather(key = "timepoint", value = "value", relative_vo2max_baseline, relative_vo2max_end)
+long_df_vo2 <- TECHS %>%
+  select(name, randomization_group, relative_vo2max_agecorrected_baseline, relative_vo2max_agecorrected_end) %>%
+  gather(key = "timepoint", value = "value", relative_vo2max_agecorrected_baseline, relative_vo2max_agecorrected_end)
 long_df_vo2 <- long_df_vo2 %>%
-  mutate(timepoint = ifelse(timepoint == "relative_vo2max_baseline", "1", "2"))
+  mutate(timepoint = ifelse(timepoint == "relative_vo2max_agecorrected_baseline", "1", "2"))
 ggplot(long_df_vo2, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
    theme_bw() +
