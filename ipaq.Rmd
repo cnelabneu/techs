@@ -48,7 +48,7 @@ ggplot(techs, aes(x = factor(total_ipaq), fill = as.factor(randomization_group))
   scale_fill_manual(values = c("black", "red"))  # Setting color scale
 print(techs$total_score)
 
-ggplot(techs, aes(x = as.factor(randomization_group), y = total_score, fill = as.factor(randomization_group))) +
+ggplot(techs, aes(x = as.factor(randomization_group_factor), y = total_score, fill = as.factor(randomization_group_factor))) +
   geom_violin() + 
   geom_point(position = position_jitterdodge(), size = 2, color = "white") +
   stat_summary(fun = mean, geom = "text", aes(label = round(..y.., digits = 2)),

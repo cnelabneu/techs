@@ -21,7 +21,7 @@ library(tidyr)
 
 techs <- read_excel("TECHS_DATA_2024-03-21_1340.xlsx")
 View(techs)
-techs <- TECHS_DATA_2024_04_22_1039
+techs <- TECHS_16PrePost
 
 ```
 
@@ -33,10 +33,13 @@ techs$sex_factor <- as.factor(techs$sex)
 techs$annual_income_factor <- as.factor(techs$annual_income)
 techs$ethnicity_factor <- as.factor(techs$ethnicity)
 techs$race_factor <- as.factor(techs$race)
+techs$randomization_group_factor <- as.factor(techs$randomization_group)
 
 mean(techs$age)
 sd(techs$age)
-merangean(techs$age)
+range(techs$age)
+techs <- techs %>%
+  mutate(randomization_group_factor = ifelse(randomization_group_factor == 0, "Aerobic", "Balance"))
 techs <- techs %>%
   mutate(sex_factor = ifelse(sex_factor == 0, "Female", "Male"))
 techs <- techs %>%
@@ -65,7 +68,7 @@ techs <- techs %>%
     annual_income == 8 ~ "$160K-$180K"
   ))
 
-table1(~ factor(sex_factor) + age + factor(annual_income_factor) + days_since_injury + ethnicity_factor + factor(race_factor) + years_of_ed | randomization_group, data=techs)
+table1(~ factor(sex_factor) + age + factor(annual_income_factor) + days_since_injury + ethnicity_factor + factor(race_factor) + years_of_ed | factor(randomization_group_factor), data=techs)
 
 
 
@@ -98,8 +101,9 @@ techs %>%
 
 techs$relativevo2 <- (techs$vo2max/techs$weight)*1000
 techs$BESS <- rowSums(techs[ , c("dls_firm","sls_firm","ts_firm","dsl_foam","sls_foam","ts_foam")], na.rm=TRUE)
+techs$BESS <- rowSums(techs[ , c("dls_firm","sls_firm","ts_firm","dsl_foam","sls_foam","ts_foam")], na.rm=TRUE)
 
-
+techs$BESS_v2 <- rowSums(techs[ , c("dls_firm_v2_821d7b","sls_firm_v2_835e98","ts_firm_v2_884cca","dsl_foam_v2_1082a5","sls_foam_v2_b7661f","ts_foam_v2_1424c9")], na.rm=TRUE)
 ```
 
 
@@ -263,28 +267,28 @@ ggplot(techs_long, aes(x = timepoint, y = bess, group = ID, color = ID)) +
 
 ```{r pre/post data}
 long_df_vf_a <- techs %>%
-  select(name, randomization_group, verbal_fluency_a, verbal_fluency_a_v2) %>%
+  select(name, randomization_group_factor, verbal_fluency_a, verbal_fluency_a_v2) %>%
   gather(key = "timepoint", value = "value", verbal_fluency_a, verbal_fluency_a_v2)
 long_df_vf_a <- long_df_vf_a %>%
   mutate(timepoint = ifelse(timepoint == "verbal_fluency_a", "1", "2"))
 
-ggplot(long_df_vf_a, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_vf_a, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group_factor))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
   theme_bw() +
   theme_classic(base_size = 15) +
- geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+ geom_smooth(aes(group = randomization_group_factor), method = "lm", se = FALSE) +  # Adding best fit line by group
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "Verbal Fluency A", x = "Timepoint", y = "# of words")
 long_df_vf_f <- techs %>%
-  select(name, randomization_group, verbal_fluency_f, verbal_fluency_f_v2) %>%
+  select(name, randomization_group_factor, verbal_fluency_f, verbal_fluency_f_v2) %>%
   gather(key = "timepoint", value = "value", verbal_fluency_f, verbal_fluency_f_v2)
 long_df_vf_f <- long_df_vf_f %>%
   mutate(timepoint = ifelse(timepoint == "verbal_fluency_f", "1", "2"))
-ggplot(long_df_vf_f, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_vf_f, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group_factor))) +
   geom_line() +
   theme_bw() +
   theme_classic(base_size = 15) +
- geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+ geom_smooth(aes(group = randomization_group_factor), method = "lm", se = FALSE) +  # Adding best fit line by group
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "Verbal Fluency F", x = "Timepoint", y = "# of words")
 techs$verbal_fluency_all <- techs$verbal_fluency_s + techs$verbal_fluency_a + techs$verbal_fluency_f
@@ -303,56 +307,56 @@ ggplot(long_df_vf_s, aes(x = timepoint, y = value, group = name, color = as.fact
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "Verbal Fluency S", x = "Timepoint", y = "# of words")
 long_df_vf_cat <- techs %>%
-  select(name, randomization_group, verbal_fluency_animals, verbal_fluency_animals_v2) %>%
+  select(name, randomization_group_factor, verbal_fluency_animals, verbal_fluency_animals_v2) %>%
   gather(key = "timepoint", value = "value", verbal_fluency_animals, verbal_fluency_animals_v2)
 long_df_vf_cat <- long_df_vf_cat %>%
   mutate(timepoint = ifelse(timepoint == "verbal_fluency_animals", "1", "2"))
-ggplot(long_df_vf_cat, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_vf_cat, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group_factor))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
   theme_bw() +
   theme_classic(base_size = 15) +
-  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +
+  geom_smooth(aes(group = randomization_group_factor), method = "lm", se = FALSE, size = 1.5) +
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "Verbal Fluency Categories", x = "Timepoint", y = "# of words")
 long_df_vf_all <- techs %>%
-  select(name, randomization_group, verbal_fluency_all, verbal_fluency_all_v2) %>%
+  select(name, randomization_group_factor, verbal_fluency_all, verbal_fluency_all_v2) %>%
   gather(key = "timepoint", value = "value", verbal_fluency_all, verbal_fluency_all_v2)
 long_df_vf_all <- long_df_vf_all %>%
   mutate(timepoint = ifelse(timepoint == "verbal_fluency_all", "1", "2"))
-ggplot(long_df_vf_all, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_vf_all, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group_factor))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
    theme_bw() +
   theme_classic(base_size = 15) +
-  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +
+  geom_smooth(aes(group = randomization_group_factor), method = "lm", se = FALSE, size = 1.5) +
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "Verbal Fluency All Phonemic", x = "Timepoint", y = "# of words")
 ```
 
 
 ```{r pre/post data}
-long_df_vo2 <- TECHS %>%
-  select(name, randomization_group, relative_vo2max_agecorrected_baseline, relative_vo2max_agecorrected_end) %>%
+long_df_vo2 <- techs %>%
+  select(name, randomization_group_factor, relative_vo2max_agecorrected_baseline, relative_vo2max_agecorrected_end) %>%
   gather(key = "timepoint", value = "value", relative_vo2max_agecorrected_baseline, relative_vo2max_agecorrected_end)
 long_df_vo2 <- long_df_vo2 %>%
   mutate(timepoint = ifelse(timepoint == "relative_vo2max_agecorrected_baseline", "1", "2"))
-ggplot(long_df_vo2, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_vo2, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group_factor))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
    theme_bw() +
   theme_classic(base_size = 15) +
-  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  geom_smooth(aes(group = randomization_group_factor), method = "lm", se = FALSE) +  # Adding best fit line by group
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "Relative VO2max", x = "Timepoint", y = "VO2Max")
 
 long_df_bess <- techs %>%
-  select(name, randomization_group, bess_sum_baseline, bess_sum_endpoint) %>%
-  gather(key = "timepoint", value = "value", bess_sum_baseline, bess_sum_endpoint)
+  select(name, randomization_group_factor, BESS, BESS_v2) %>%
+  gather(key = "timepoint", value = "value", BESS, BESS_v2)
 long_df_bess <- long_df_bess %>%
-  mutate(timepoint = ifelse(timepoint == "bess_sum_baseline", "1", "2"))
-ggplot(long_df_bess, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  mutate(timepoint = ifelse(timepoint == "BESS", "1", "2"))
+ggplot(long_df_bess, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group_factor))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
    theme_bw() +
   theme_classic(base_size = 15) +
-  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  geom_smooth(aes(group = randomization_group_factor), method = "lm", se = FALSE) +  # Adding best fit line by group
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "BESS", x = "Timepoint", y = "BESS")
 ```
@@ -360,22 +364,22 @@ ggplot(long_df_bess, aes(x = timepoint, y = value, group = name, color = as.fact
 
 ```{r pre/post data}
 long_df_tmt_a <- techs %>%
-  select(name, randomization_group, tm_time_a, tm_time_a_v2) %>%
+  select(name, randomization_group_factor, tm_time_a, tm_time_a_v2) %>%
   gather(key = "timepoint", value = "value",  tm_time_a, tm_time_a_v2)
 long_df_tmt_a <- long_df_tmt_a %>%
   mutate(timepoint = ifelse(timepoint == "tm_time_a", "1", "2"))
 time_components <- strsplit(long_df_tmt_a$value, ":")
 long_df_tmt_a$value <- sapply(time_components, function(x) as.numeric(x[1]) * 60 + as.numeric(x[2]))
-ggplot(long_df_tmt_a, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_tmt_a, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group_factor))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
    theme_bw() +
   theme_classic(base_size = 15) +
-  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  geom_smooth(aes(group = randomization_group_factor), method = "lm", se = FALSE) +  # Adding best fit line by group
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "TMT A", x = "Timepoint", y = "TMTA (time)")
 
 long_df_tmt_b <- techs %>%
-  select(name, randomization_group, tm_time_b, tm_time_b_v2) %>%
+  select(name, randomization_group_factor, tm_time_b, tm_time_b_v2) %>%
   gather(key = "timepoint", value = "value",  tm_time_b, tm_time_b_v2)
 long_df_tmt_a <- long_df_tmt_a %>%
   mutate(timepoint = ifelse(timepoint == "tm_time_b", "1", "2"))
@@ -387,11 +391,11 @@ ggplot(long_df_tmt_b, aes(x = timepoint, y = value, group = name, color = name))
   theme_classic(base_size = 15) +
   geom_line(size = 2) + 
   labs(title = "TMT B", x = "Timepoint", y = "TMTB (time)")
-ggplot(long_df_tmt_b, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_tmt_b, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group_factor))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
    theme_bw() +
   theme_classic(base_size = 15) +
-  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  geom_smooth(aes(group = randomization_group_factor), method = "lm", se = FALSE) +  # Adding best fit line by group
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "TMT B", x = "Timepoint", y = "TMTB (time)")
 
@@ -403,41 +407,41 @@ techs$hvlt_IR_all <- techs$t1_correct + techs$t2_correct + techs$t3_correct
 techs$hvlt_IR_all_end <- techs$t1_correct_v2 + techs$t2_correct_v2 + techs$t3_correct_v2
 
 long_df_hvlt <- techs %>%
-  select(name, randomization_group, hvlt_IR_all, hvlt_IR_all_end) %>%
+  select(name, randomization_group_factor, hvlt_IR_all, hvlt_IR_all_end) %>%
   gather(key = "timepoint", value = "value", hvlt_IR_all, hvlt_IR_all_end)
 long_df_hvlt <- long_df_hvlt %>%
   mutate(timepoint = ifelse(timepoint == "hvlt_IR_all", "1", "2"))
-ggplot(long_df_hvlt, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_hvlt, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group_factor))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
    theme_bw() +
   theme_classic(base_size = 15) +
-    geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+    geom_smooth(aes(group = randomization_group_factor), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "HVLT IR", x = "Timepoint", y = "HVLT IR")
 long_df_hvlt_delay <- techs %>%
-  select(name, randomization_group, t4_correct, t4_correct_v2) %>%
+  select(name, randomization_group_factor, t4_correct, t4_correct_v2) %>%
   gather(key = "timepoint", value = "value", t4_correct, t4_correct_v2)
 long_df_hvlt_delay <- long_df_hvlt_delay %>%
   mutate(timepoint = ifelse(timepoint == "t4_correct", "1", "2"))
-ggplot(long_df_hvlt_delay, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_hvlt_delay, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group_factor))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
   theme_bw() +
   theme_classic(base_size = 15) +
-  geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  geom_smooth(aes(group = randomization_group_factor), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
 
   labs(title = "HVLT Delay", x = "Timepoint", y = "HVLT Delay")
 
 long_df_hvlt_recognition <- techs %>%
-  select(name, randomization_group, recognition_score, recognition_score_v2) %>%
+  select(name, randomization_group_factor, recognition_score, recognition_score_v2) %>%
   gather(key = "timepoint", value = "value", recognition_score, recognition_score_v2)
 long_df_hvlt_recognition <- long_df_hvlt_recognition %>%
   mutate(timepoint = ifelse(timepoint == "recognition_score", "1", "2"))
-ggplot(long_df_hvlt_recognition, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_hvlt_recognition, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group_factor))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
   theme_bw() +
   theme_classic(base_size = 15) +
-   geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+   geom_smooth(aes(group = randomization_group_factor), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "HVLT Recognition", x = "Timepoint", y = "HVLT Recognition (# errors)")
 
@@ -455,7 +459,7 @@ ggplot(techs, aes(x = factor(age), fill = as.factor(randomization_group))) +
   geom_histogram(stat = "count", position = "dodge") +  # Adjusting position of bars
   labs(x = "Category", y = "Count", title = "Count of Each Category for Age") +
   scale_fill_manual(values = c("black", "red"))
-ggplot(techs, aes(x = as.factor(randomization_group), y = age, fill = as.factor(randomization_group))) +
+ggplot(techs, aes(x = as.factor(randomization_group_factor), y = age, fill = as.factor(randomization_group_factor))) +
   geom_violin() + 
   geom_point(position = position_jitterdodge(), size = 2, color = "white") +
   stat_summary(fun = mean, geom = "text", aes(label = round(..y.., digits = 2)),
@@ -463,11 +467,11 @@ ggplot(techs, aes(x = as.factor(randomization_group), y = age, fill = as.factor(
   labs(x = "Category", y = "Age", title = "Age") +
   scale_fill_manual(values = c("black", "red"))
 #histogram of age by group
-ggplot(techs, aes(x = factor(days_since_injury), fill = as.factor(randomization_group))) +
+ggplot(techs, aes(x = factor(days_since_injury), fill = as.factor(randomization_group_factor))) +
   geom_histogram(stat = "count", position = "dodge") +  # Adjusting position of bars
   labs(x = "Category", y = "Count", title = "Days Since Injury") +
   scale_fill_manual(values = c("black", "red"))
-ggplot(techs, aes(x = as.factor(randomization_group), y = days_since_injury, fill = as.factor(randomization_group))) +
+ggplot(techs, aes(x = as.factor(randomization_group_factor), y = days_since_injury, fill = as.factor(randomization_group_factor))) +
   geom_violin() + 
   geom_point(position = position_jitterdodge(), size = 2, color = "white") +
   stat_summary(fun = mean, geom = "text", aes(label = round(..y.., digits = 2)),
@@ -476,6 +480,7 @@ ggplot(techs, aes(x = as.factor(randomization_group), y = days_since_injury, fil
   scale_fill_manual(values = c("black", "red"))
 
 ```
+
 ```{r}
 #adherence plot
 techs1 <- techs[-14, ]
@@ -695,5 +700,103 @@ cor.test(techs$global_v1, techs$global_v2)
 
 t.test(techs$bess_sum_baseline, techs$bess_sum_endpoint)
 cor.test(techs$bess_sum_baseline, techs$bess_sum_endpoint)
+```
+
+
+```{r}
+
+long_df_FA <- dti %>%
+  select(name, randomization_group, mean_fa, mean_fa_t2) %>%
+  gather(key = "timepoint", value = "value", mean_fa, mean_fa_t2)
+long_df_FA <- long_df_FA %>%
+  mutate(timepoint = ifelse(timepoint == "mean_fa", "1", "2"))
+
+ggplot(long_df_FA, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15) +
+ geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "FA", x = "Timepoint", y = "FA")
+  
+  
+  
+long_df_AD <- dti %>%
+  select(name, randomization_group, mean_ad, mean_ad_t2) %>%
+  gather(key = "timepoint", value = "value", mean_ad, mean_ad_t2)
+long_df_AD <- long_df_AD %>%
+  mutate(timepoint = ifelse(timepoint == "mean_ad", "1", "2"))
+
+ggplot(long_df_AD, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15) +
+ geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "AD", x = "Timepoint", y = "AD")
+  
+  
+long_df_MD <- dti %>%
+  select(name, randomization_group, mean_md, mean_md_t2) %>%
+  gather(key = "timepoint", value = "value", mean_md, mean_md_t2)
+long_df_MD <- long_df_MD %>%
+  mutate(timepoint = ifelse(timepoint == "mean_md", "1", "2"))
+
+ggplot(long_df_MD, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15) +
+ geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "MD", x = "Timepoint", y = "MD")
+  
+  
+long_df_RD <- dti %>%
+  select(name, randomization_group, mean_rd, mean_rd_t2) %>%
+  gather(key = "timepoint", value = "value", mean_rd, mean_rd_t2)
+long_df_RD <- long_df_RD %>%
+  mutate(timepoint = ifelse(timepoint == "mean_rd", "1", "2"))
+
+ggplot(long_df_RD, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15) +
+ geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "RD", x = "Timepoint", y = "RD")
+  
+ggplot(df_clean, aes(x = as.factor(randomization_group), y = ad_change, fill = as.factor(randomization_group))) +
+  geom_violin() + 
+  geom_point(position = position_jitterdodge(), size = 2, color = "white") +
+  labs(x = "Category", y = "AD", title = "Change in AD") +
+  scale_fill_manual(values = c("black", "red"))
+
+ggplot(df_clean, aes(x = as.factor(randomization_group), y = fa_change, fill = as.factor(randomization_group))) +
+  geom_violin() + 
+  geom_point(position = position_jitterdodge(), size = 2, color = "white") +
+  labs(x = "Category", y = "FA", title = "Change in FA") +
+  scale_fill_manual(values = c("black", "red"))
+  
+ggplot(df_clean, aes(x = as.factor(randomization_group), y = rd_change, fill = as.factor(randomization_group))) +
+  geom_violin() + 
+  geom_point(position = position_jitterdodge(), size = 2, color = "white") +
+  labs(x = "Category", y = "RD", title = "Change in RD") +
+  scale_fill_manual(values = c("black", "red"))
+  
+  ggplot(df_clean, aes(x = as.factor(randomization_group), y = md_change, fill = as.factor(randomization_group))) +
+  geom_violin() + 
+  geom_point(position = position_jitterdodge(), size = 2, color = "white") +
+  labs(x = "Category", y = "MD", title = "Change in MD") +
+  scale_fill_manual(values = c("black", "red"))
+  
+ggplot(df_clean, aes(x = ad_change, y = tm_time_b_change, color = as.factor(randomization_group))) +
+  geom_point() +  # Add points for the correlation
+  geom_smooth(method = "lm", se = FALSE) +  # Add the best fit line
+  theme_bw() +
+  theme_classic(base_size = 15) +
+  scale_color_manual(values = c("black", "red")) +  # Set color scale
+  labs(title = "Correlation between AD Change and TM Time B Change", 
+       x = "AD Change", 
+       y = "TM Time B Change")
 ```
 

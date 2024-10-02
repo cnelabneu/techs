@@ -54,19 +54,35 @@ techs$comp3 <- cut(techs$sleep_baseline,
                        breaks=c(-Inf, 5, 6, 7, Inf), 
                        labels=c("3","2","1", "0"))
 #make sure waketime and bedtime are in 24 hour format
+# Convert time objects to numeric hours
+convert_to_numeric_hours <- function(time_str) {
+  time_str <- as.character(time_str)  # Ensure the input is a character string
+  time_parts <- strsplit(time_str, ":")[[1]]  # Split the string by ":"
+  hours <- as.numeric(time_parts[1])
+  minutes <- as.numeric(time_parts[2]) / 60
+  seconds <- as.numeric(time_parts[3]) / 3600
+  return(hours + minutes + seconds)
+}
+
+# Apply the conversion and compute actual sleep
 techs$actual_sleep <- sapply(1:length(techs$bedtime_baseline), function(i) {
-  bed_time <- techs$bedtime_baseline[i]
-  wake_time <- techs$waketime_baseline[i]
-  
+  bed_time <- convert_to_numeric_hours(techs$bedtime_baseline[i])
+  wake_time <- convert_to_numeric_hours(techs$waketime_baseline[i])
+
+  if (is.na(bed_time) | is.na(wake_time)) {
+    return(NA)  # Handle missing times
+  }
+
   # Adjust for crossing midnight
   if (bed_time > wake_time) {
     sleep_time <- (24 - bed_time) + wake_time
   } else {
     sleep_time <- wake_time - bed_time
   }
-  
+
   return(sleep_time)
 })
+
 
 techs$comp4 <- (techs$sleep_baseline/techs$actual_sleep)*100
 techs$comp4 <- cut(techs$comp4, 
