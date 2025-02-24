@@ -103,28 +103,91 @@ techs$comp6 <- as.numeric(techs$comp6)
 techs$comp7 <- as.numeric(techs$comp7)
 techs$totalpsqi <- rowSums(techs[ , c("comp1","comp2","comp3","comp4","comp5","comp6","comp7")], na.rm=TRUE)
 hist(techs$totalpsqi)
-ggplot(techs, aes(x = factor(totalpsqi), fill = as.factor(randomization_group))) +
+ggplot(techs, aes(x = factor(totalpsqi), fill = as.factor(intervention_group))) +
   geom_histogram(stat = "count") +
   labs(x = "Category", y = "Count", title = "Count of Each Category for PSQI") +
-  scale_fill_manual(values = c("black", "red")) 
+  scale_fill_manual(values = c("black", "red", "grey", "lightgreen"))
 
-ggplot(techs, aes(x = as.factor(randomization_group), y = totalpsqi, fill = as.factor(randomization_group))) +
+ggplot(techs, aes(x = as.factor(intervention_group), y = totalpsqi, fill = as.factor(intervention_group))) +
   geom_violin() + 
   geom_point(position = position_jitterdodge(), size = 2, color = "white") +
   stat_summary(fun = mean, geom = "text", aes(label = round(..y.., digits = 2)),
                vjust = 1.5, size = 4, color = "white") +
   labs(x = "Category", y = "Count", title = "Count of Each Category for PSQI") +
-  scale_fill_manual(values = c("black", "red"))
+  scale_fill_manual(values = c("black", "red", "grey", "lightgreen"))
 
 
-ggplot(techs, aes(x = as.factor(randomization_group), y = totalpsqi, fill = as.factor(randomization_group))) +
+ggplot(techs, aes(x = as.factor(intervention_group), y = totalpsqi, fill = as.factor(intervention_group))) +
   geom_bar(stat = "summary", fun = "mean") +
   stat_summary(fun = mean, geom = "text", aes(label = round(..y.., digits = 2)),
                vjust = 1.5, size = 4, color = "white") +  # Adjusted position of text
   labs(x = "Group", y = "PSQI", title = "Mean for each group PSQI") +
-  scale_fill_manual(values = c("black", "red"))
+  scale_fill_manual(values = c("black", "red", "grey", "lightgreen"))
 
-``` 
+```
+#endpoint
 ```{r}
+techs_psqi <- techs[!is.na(techs$sleep_quality_endpoint), ]
 
+techs_psqi$comp1_endpoint <- techs_psqi$sleep_quality_endpoint
+techs_psqi$q2_endpoint <- cut(techs_psqi$time_to_sleep_baseline_endpoint, 
+                      breaks=c(-Inf, 16, 31, 60, Inf), 
+                   labels=c("0","1","2", "3"))
+techs_psqi$q2_endpoint <- as.numeric(techs_psqi$q2_endpoint)
+techs_psqi$comp2_endpoint <- rowSums(techs_psqi[ , c("q2","cantsleep_endpoint")], na.rm=TRUE)
+techs_psqi$comp2_endpoint <- cut(techs_psqi$comp2_endpoint, 
+                      breaks=c(-Inf, 1, 3, 4, Inf), 
+                   labels=c("0","1","2", "3"))
+techs_psqi$sleep_baseline_endpoint <- as.numeric(techs_psqi$sleep_baseline_endpoint)
+techs_psqi$comp3_endpoint <- cut(techs_psqi$sleep_baseline_endpoint, 
+                       breaks=c(-Inf, 5, 6, 7, Inf), 
+                       labels=c("3","2","1", "0"))
+
+
+
+techs_psqi$comp4_endpoint <- (techs_psqi$sleep_baseline_endpoint/techs_psqi$actual_sleep_endpoint)*100
+techs_psqi$comp4_endpoint <- cut(techs_psqi$comp4_endpoint, 
+                       breaks=c(-Inf, 65, 74, 84, Inf), 
+                       labels=c("3","2","1","0"))
+techs_psqi$comp5_endpoint <- rowSums(techs_psqi[ , c("wakeup_endpoint","bathroom_endpoint", "breath_endpoint","snore_endpoint","cold_endpoint","hot_endpoint","nightmares_endpoint","pain_endpoint")], na.rm=TRUE)
+techs_psqi$comp5_endpoint <- cut(techs_psqi$comp5_endpoint, 
+                      breaks=c(-Inf, 1, 9, 19, Inf), 
+                      labels=c("0","1","2","3"))
+techs_psqi$comp6_endpoint <- techs_psqi$meds_endpoint
+techs_psqi$comp7_endpoint <- rowMeans(techs_psqi[ , c("enthusiasm_endpoint","trouble_staying_awake_endpoint")], na.rm=TRUE)
+techs_psqi$comp1_endpoint <- as.numeric(techs_psqi$comp1_endpoint) 
+techs_psqi$comp2_endpoint <- as.numeric(techs_psqi$comp2_endpoint)
+techs_psqi$comp3_endpoint <- as.numeric(techs_psqi$comp3_endpoint)
+techs_psqi$comp4_endpoint <- as.numeric(techs_psqi$comp4_endpoint)
+techs_psqi$comp5_endpoint <- as.numeric(techs_psqi$comp5_endpoint)
+techs_psqi$comp6_endpoint <- as.numeric(techs_psqi$comp6_endpoint)
+techs_psqi$comp7_endpoint <- as.numeric(techs_psqi$comp7_endpoint)
+techs_psqi$totalpsqi_endpoint <- rowSums(techs_psqi[ , c("comp1_endpoint","comp2_endpoint","comp3_endpoint","comp4_endpoint","comp5_endpoint","comp6_endpoint","comp7_endpoint")], na.rm=TRUE)
+hist(techs_psqi$totalpsqi_endpoint)
+ggplot(techs_psqi, aes(x = factor(totalpsqi_endpoint), fill = as.factor(intervention_group))) +
+  geom_histogram(stat = "count") +
+  labs(x = "Category", y = "Count", title = "Count of Each Category for PSQI") +
+  scale_fill_manual(values = c("black", "red", "grey", "lightgreen"))
+
+ggplot(techs_psqi, aes(x = as.factor(intervention_group), y = totalpsqi_endpoint, fill = as.factor(intervention_group))) +
+  geom_violin() + 
+  geom_point(position = position_jitterdodge(), size = 2, color = "white") +
+  stat_summary(fun = mean, geom = "text", aes(label = round(..y.., digits = 2)),
+               vjust = 1.5, size = 4, color = "white") +
+  labs(x = "Category", y = "Count", title = "Count of Each Category for PSQI at endpoint") +
+  scale_fill_manual(values = c("black", "red", "grey", "lightgreen"))
+
+long_df_psqi<- techs_psqi %>%
+  select(name, Group, totalpsqi, totalpsqi_endpoint) %>%
+  gather(key = "timepoint", value = "value", totalpsqi, totalpsqi_endpoint)
+long_df_psqi <- long_df_psqi %>%
+  mutate(timepoint = ifelse(timepoint == "totalpsqi", "1", "2"))
+
+ggplot(long_df_psqi %>% filter(!is.na(Group)), aes(x = timepoint, y = value, group = name, color = as.factor(Group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15) +
+  geom_smooth(aes(group = Group), method = "lm", se = FALSE) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "PSQI", x = "Timepoint", y = "PSQI")
 ```

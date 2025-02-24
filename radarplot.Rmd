@@ -15,27 +15,34 @@ library(fmsb)
 
 
 ```{r}
-techs21 <- data.frame(
-   Cognition = c(50, 43),
-    Brain = c(9.8, 9.3),
-    Symptoms = c(5, 0),
-    Fitness = c(39.3, 29.24),
-    Balance = c(11, 9)
+techs28 <- data.frame(
+    Cognition = c(37, 31),
+    Brain = c(10, 10),
+    Symptoms = c(0, 0),
+    Fitness = c(33.187, 37.0909),
+    Balance = c(6, 3)
 )
-row.names(techs21) <- c("Baseline", "Endpoint")
-techs21
+techs29 <- data.frame(
+    Cognition = c(60, 55),
+    Brain = c(8, 9),
+    Symptoms = c(0, 0),
+    Fitness = c(38.66, 43.156),
+    Balance = c(9, 3)
+)
+row.names(techs28) <- c("Baseline", "Endpoint")
+techs28
 
 max_min <- data.frame(
     Cognition = c(60, 0),
-    Brain = c(10, 5),
-    Symptoms = c(10, 0),
-    Fitness = c(45, 0),
-    Balance = c(12, 0)
+    Brain = c(11, 0),
+    Symptoms = c(30, 0),
+    Fitness = c(44, 0),
+    Balance = c(10, 0)
 )
-techs21_plot <- rbind(max_min, techs21)
+techs28_plot <- rbind(max_min,techs28)
 
 radarchart(
-    techs21_plot, axistype = 1,
+    techs28_plot, axistype = 1,
     # Customizing the plot appearance
     pcol = c("#00AFBB", "#E7B800"),    # Colors for the lines
     pfcol = c(rgb(0.2,0.5,0.5,0.5), rgb(0.8,0.2,0.5,0.5)), # Colors for the filled areas

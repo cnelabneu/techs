@@ -42,19 +42,19 @@ ggplot(techs, aes(x = factor(total_ipaq))) +
   labs(x = "Category", y = "Count", title = "Count of Each Category in total_ipaq")
 
 
-ggplot(techs, aes(x = factor(total_ipaq), fill = as.factor(randomization_group))) +
+ggplot(techs, aes(x = factor(total_ipaq), fill = as.factor(intervention_group))) +
   geom_histogram(stat = "count") +
   labs(x = "Category", y = "Count", title = "Count of Each Category in total_ipaq") +
-  scale_fill_manual(values = c("black", "red"))  # Setting color scale
+  scale_fill_manual(values = c("black", "red", "grey", "lightgreen"))
 print(techs$total_score)
 
-ggplot(techs, aes(x = as.factor(randomization_group_factor), y = total_score, fill = as.factor(randomization_group_factor))) +
+ggplot(techs, aes(x = as.factor(intervention_group), y = total_score, fill = as.factor(intervention_group))) +
   geom_violin() + 
   geom_point(position = position_jitterdodge(), size = 2, color = "white") +
   stat_summary(fun = mean, geom = "text", aes(label = round(..y.., digits = 2)),
                vjust = 1.5, size = 4, color = "white") +
   labs(x = "Category", y = "Count", title = "Count of Each Category for IPAQ") +
-  scale_fill_manual(values = c("black", "red"))
+  scale_fill_manual(values = c("black", "red", "grey", "lightgreen"))
 
 ```
 

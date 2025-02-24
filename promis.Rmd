@@ -11,162 +11,193 @@ library(dplyr)
 ```{r PROMIS Global Health scoring baseline}
 #recoding variables to the right names (specific to techs redcap)
 #add one to each variable since on redcap its scored 0-4 instead of 1-5
-techs$overall_health <- techs$overall_health + 1
-techs$quality_life <- techs$quality_life + 1
-techs$physical_health <- techs$physical_health + 1
-techs$mental_health <- techs$mental_health + 1
-techs$social_satisfaction <- techs$social_satisfaction + 1
-techs$social_activities <- techs$social_activities + 1
-techs$promis_physical_activities <- techs$promis_physical_activities + 1
-techs$promis_emotional <- techs$promis_emotional + 1
-techs$promis_7day_fatigue <- techs$promis_7day_fatigue + 1
-techs$promis_pain <- techs$promis_pain + 1
-techs$mind <- techs$mind + 1
-techs$memory <- techs$memory + 1
-techs$thinking <- techs$thinking + 1
-techs$keep_track <- techs$keep_track + 1
-techs$concentrate <- techs$concentrate + 1
-techs$think_clearly <- techs$think_clearly + 1
-techs$attention <- techs$attention + 1
-techs$remember <- techs$remember + 1
+promis$overall_health <- promis$overall_health + 1
+promis$quality_life <- promis$quality_life + 1
+promis$physical_health <- promis$physical_health + 1
+promis$mental_health <- promis$mental_health + 1
+promis$social_satisfaction <- promis$social_satisfaction + 1
+promis$social_activities <- promis$social_activities + 1
+promis$promis_physical_activities <- promis$promis_physical_activities + 1
+promis$promis_emotional <- promis$promis_emotional + 1
+promis$promis_7day_fatigue <- promis$promis_7day_fatigue + 1
+promis$mind <- promis$mind + 1
+promis$memory <- promis$memory + 1
+promis$thinking <- promis$thinking + 1
+promis$keep_track <- promis$keep_track + 1
+promis$concentrate <- promis$concentrate + 1
+promis$think_clearly <- promis$think_clearly + 1
+promis$attention <- promis$attention + 1
+promis$remember <- promis$remember + 1
 
-techs$global01 <- techs$overall_health #raw score is fine
-techs$global02 <- techs$quality_life #raw score is fine
-techs$global03 <- techs$physical_health #raw score is fine 
-techs$global04 <- techs$mental_health #raw score is fine
-techs$global05 <- techs$social_satisfaction #raw score is fine
-techs$global06 <- techs$promis_physical_activities #raw score is fine
-techs$global07 <- techs$promis_pain #recode needed 
-techs$global08 <- techs$promis_7day_fatigue #recode needed 
-techs$global09 <- techs$social_activities #raw score is fine
-techs$global10 <- techs$promis_emotional #recode needed
-techs$global07 <- as.numeric(techs$global07)
-techs$global07r <- cut(techs$global07, 
+promis$global01 <- promis$overall_health #raw score is fine
+promis$global02 <- promis$quality_life #raw score is fine
+promis$global03 <- promis$physical_health #raw score is fine 
+promis$global04 <- promis$mental_health #raw score is fine
+promis$global05 <- promis$social_satisfaction #raw score is fine
+promis$global06 <- promis$promis_physical_activities #raw score is fine
+promis$global07 <- promis$promis_pain #recode needed 
+promis$global08 <- promis$promis_7day_fatigue #recode needed 
+promis$global09 <- promis$social_activities #raw score is fine
+promis$global10 <- promis$promis_emotional #recode needed
+promis$global07 <- as.numeric(promis$global07)
+promis$global07r <- cut(promis$global07, 
                       breaks=c(-Inf, 2, 4, 7, 10, Inf), 
                       labels=c("5","4","3","2","1"))
-techs$global08r <- recode(techs$global08, "5" = "1", "4" = "2", "3" = "3", "2" = "4", "1" = "5")
-techs$global10r <- recode(techs$global10, "5" = "1", "4" = "2", "3" = "3", "2" = "4", "1" = "5")
-techs$global01 <- as.numeric(techs$global01) #self-rated health not reported in sum score
-techs$global02 <- as.numeric(techs$global02)
-techs$global03 <- as.numeric(techs$global03)
-techs$global04 <- as.numeric(techs$global04)
-techs$global05 <- as.numeric(techs$global05)
-techs$global06 <- as.numeric(techs$global06)
-techs$global07r <- as.numeric(techs$global07r)
-techs$global08r <- as.numeric(techs$global08r)
-techs$global09 <- as.numeric(techs$global09) #self-rated social not reported in sum score
-techs$global10r <- as.numeric(techs$global10r)
+promis$global08r <- recode(promis$global08, "5" = "1", "4" = "2", "3" = "3", "2" = "4", "1" = "5")
+promis$global10r <- recode(promis$global10, "5" = "1", "4" = "2", "3" = "3", "2" = "4", "1" = "5")
+promis$global01 <- as.numeric(promis$global01) #self-rated health not reported in sum score
+promis$global02 <- as.numeric(promis$global02)
+promis$global03 <- as.numeric(promis$global03)
+promis$global04 <- as.numeric(promis$global04)
+promis$global05 <- as.numeric(promis$global05)
+promis$global06 <- as.numeric(promis$global06)
+promis$global07r <- as.numeric(promis$global07r)
+promis$global08r <- as.numeric(promis$global08r)
+promis$global09 <- as.numeric(promis$global09) #self-rated social not reported in sum score
+promis$global10r <- as.numeric(promis$global10r)
 
 #add up sums for physical health
-techs$gph_raw <- rowSums(techs[, c("global02", "global04", "global10r")])
+promis$gph_raw <- rowSums(promis[, c("global02", "global04", "global10r")])
 #add up sums for mental health
-techs$gmh_raw <- rowSums(techs[, c("global03", "global06", "global07r", "global08r", "global09")])
+promis$gmh_raw <- rowSums(promis[, c("global03", "global06", "global07r", "global08r", "global09")])
 
 #t scores mental health
-techs$gmh_t <- recode(techs$gmh_raw, "4" = "21.2", "5" = "25.5", "6" = "28.4", "7" = "31.3", "8" = "33.8", "9" = "36.3", "10" = "38.8", "11" = "41.1", "12" = "43.5", "13" = "45.8", "14" = "48.3", "15" = "50.8", "16" = "53.3", "17" = "56.0", "18" = "59.0", "19" = "62.5", "20" = "67.6")
+promis$gmh_t <- recode(promis$gmh_raw, "4" = "21.2", "5" = "25.5", "6" = "28.4", "7" = "31.3", "8" = "33.8", "9" = "36.3", "10" = "38.8", "11" = "41.1", "12" = "43.5", "13" = "45.8", "14" = "48.3", "15" = "50.8", "16" = "53.3", "17" = "56.0", "18" = "59.0", "19" = "62.5", "20" = "67.6", "21" = "70.1", "22" = "73.7")
 #t scores physical health
-techs$gph_t <- recode(techs$gph_raw, "4" = "16.2", "5" = "19.9", "6" = "23.5", "7" = "26.7", "8" = "29.6", "9" = "32.4", "10" = "34.9", "11" = "37.4", "12" = "39.8", "13" = "42.3", "14" = "44.9", "15" = "50.8", "16" = "50.8", "17" = "54.1", "18" = "57.7", "19" = "61.9", "20" = "67.7")
+promis$gph_t <- recode(promis$gph_raw, "4" = "16.2", "5" = "19.9", "6" = "23.5", "7" = "26.7", "8" = "29.6", "9" = "32.4", "10" = "34.9", "11" = "37.4", "12" = "39.8", "13" = "42.3", "14" = "44.9", "15" = "50.8", "16" = "50.8", "17" = "54.1", "18" = "57.7", "19" = "61.9", "20" = "67.7", "21" = "70.1", "22" = "73.7")
 ```
 
 
 ```{r PROMIS Cognitive Function scoring baseline}
 #recoding variables to the right names (specific to techs redcap)
-techs$cog_func_raw <- rowSums(techs[, c("mind", "memory", "keep_track", "concentrate", "think_clearly", "attention", "remember")])
-techs$cog_func_t <- recode(techs$cog_func_raw, "8" = "22.41", "9" = "25.73", "10" = "27.45", "11" = "28.90", "12" = "30.11", "13" = "31.18", "14" = "32.15", "15" = "33.06", "16" = "33.92", "17" = "34.75", "18" = "35.56", "19" = "36.36", "20" = "37.15", "21" = "37.93", "22" = "38.71", "23" = "39.50", "24" = "40.29", "25" = "41.09", "26" = "41.90", "27" = "42.72", "28" = "43.57", "29" = "44.43", "30" = "45.31", "31" = "1 46.22", "32" = "47.17", "33" = "48.18", "34" = "49.26", "35" = "50.45", "36" = "50.45", "37" = "58.03", "38" = "59.95", "39" = "62.52", "40" = "67.09")
+promis$cog_func_raw <- rowSums(promis[, c("mind", "memory", "keep_track", "concentrate", "think_clearly", "attention", "remember")])
+promis$cog_func_t <- recode(promis$cog_func_raw, "8" = "22.41", "9" = "25.73", "10" = "27.45", "11" = "28.90", "12" = "30.11", "13" = "31.18", "14" = "32.15", "15" = "33.06", "16" = "33.92", "17" = "34.75", "18" = "35.56", "19" = "36.36", "20" = "37.15", "21" = "37.93", "22" = "38.71", "23" = "39.50", "24" = "40.29", "25" = "41.09", "26" = "41.90", "27" = "42.72", "28" = "43.57", "29" = "44.43", "30" = "45.31", "31" = "46.22", "32" = "47.17", "33" = "48.18", "34" = "49.26", "35" = "50.45", "36" = "50.45", "37" = "58.03", "38" = "59.95", "39" = "62.52", "40" = "67.09", "42" = "70.1")
 
 ```
 
 
 ```{r PROMIS Global Health scoring endpoint}
 #recoding variables to the right names (specific to techs redcap)
-techs$global01_v2 <- techs$overall_health_v2 #raw score is fine
-techs$global02_v2 <- techs$quality_life_v2 #raw score is fine
-techs$global03_v2 <- techs$physical_health_v2 #raw score is fine
-techs$global04_v2 <- techs$mental_health_v2 #raw score is fine
-techs$global05_v2 <- techs$social_satisfaction_v2 #raw score is fine
-techs$global06_v2 <- techs$promis_physical_activities_v2 #raw score is fine
-techs$global07_v2 <- as.numeric(techs$promis_pain_v2) #recode needed 
-techs$global08_v2 <- techs$promis_7day_fatigue_v2 #recode needed 
-techs$global09_v2 <- techs$social_activities_v2 #raw score is fine
-techs$global10_v2 <- techs$promis_emotional_v2 #recode needed
+promis$overall_health_v2 <- promis$overall_health_v2 + 1
+promis$quality_life_v2 <- promis$quality_life_v2 + 1
+promis$physical_health_v2 <- promis$physical_health_v2 + 1
+promis$mental_health_v2 <- promis$mental_health_v2 + 1
+promis$social_satisfaction_v2 <- promis$social_satisfaction_v2 + 1
+promis$social_activities_v2 <- promis$social_activities_v2 + 1
+promis$promis_physical_activities_v2 <- promis$promis_physical_activities_v2 + 1
+promis$promis_emotional_v2 <- promis$promis_emotional_v2 + 1
+promis$promis_7day_fatigue_v2 <- promis$promis_7day_fatigue_v2 + 1
+promis$mind_v2 <- promis$mind_v2 + 1
+promis$memory_v2 <- promis$memory_v2 + 1
+promis$thinking_v2 <- promis$thinking_v2 + 1
+promis$keep_track_v2 <- promis$keep_track_v2 + 1
+promis$concentrate_v2 <- promis$concentrate_v2 + 1
+promis$think_clearly_v2 <- promis$think_clearly_v2 + 1
+promis$attention_v2 <- promis$attention_v2 + 1
+promis$remember_v2 <- promis$remember_v2 + 1
 
-techs$global07r_v2 <- cut(techs$global07_v2, 
+promis$global01_v2 <- promis$overall_health_v2 #raw score is fine
+promis$global02_v2 <- promis$quality_life_v2 #raw score is fine
+promis$global03_v2 <- promis$physical_health_v2 #raw score is fine
+promis$global04_v2 <- promis$mental_health_v2 #raw score is fine
+promis$global05_v2 <- promis$social_satisfaction_v2 #raw score is fine
+promis$global06_v2 <- promis$promis_physical_activities_v2 #raw score is fine
+promis$global07_v2 <- as.numeric(promis$promis_pain_v2) #recode needed 
+promis$global08_v2 <- promis$promis_7day_fatigue_v2 #recode needed 
+promis$global09_v2 <- promis$social_activities_v2 #raw score is fine
+promis$global10_v2 <- promis$promis_emotional_v2 #recode needed
+
+promis$global07r_v2 <- cut(promis$global07_v2, 
                       breaks=c(-Inf, 2, 4, 7, 10, Inf), 
                       labels=c("5","4","3","2","1"))
-techs$global08r_v2 <- recode(techs$global08_v2, "5" = "1", "4" = "2", "3" = "3", "2" = "4", "1" = "5")
-techs$global10r_v2 <- recode(techs$global10_v2, "5" = "1", "4" = "2", "3" = "3", "2" = "4", "1" = "5")
-techs$global01_v2 <- as.numeric(techs$global01_v2) #self-rated health not reported in sum score
-techs$global02_v2 <- as.numeric(techs$global02_v2)
-techs$global03_v2 <- as.numeric(techs$global03_v2)
-techs$global04_v2 <- as.numeric(techs$global04_v2)
-techs$global05_v2 <- as.numeric(techs$global05_v2)
-techs$global06_v2 <- as.numeric(techs$global06_v2)
-techs$global07r_v2 <- as.numeric(techs$global07r_v2)
-techs$global08r_v2 <- as.numeric(techs$global08r_v2)
-techs$global09_v2 <- as.numeric(techs$global09_v2) #self-rated social not reported in sum score
-techs$global10r_v2 <- as.numeric(techs$global10r_v2)
+promis$global08r_v2 <- recode(promis$global08_v2, "5" = "1", "4" = "2", "3" = "3", "2" = "4", "1" = "5")
+promis$global10r_v2 <- recode(promis$global10_v2, "5" = "1", "4" = "2", "3" = "3", "2" = "4", "1" = "5")
+promis$global01_v2 <- as.numeric(promis$global01_v2) #self-rated health not reported in sum score
+promis$global02_v2 <- as.numeric(promis$global02_v2)
+promis$global03_v2 <- as.numeric(promis$global03_v2)
+promis$global04_v2 <- as.numeric(promis$global04_v2)
+promis$global05_v2 <- as.numeric(promis$global05_v2)
+promis$global06_v2 <- as.numeric(promis$global06_v2)
+promis$global07r_v2 <- as.numeric(promis$global07r_v2)
+promis$global08r_v2 <- as.numeric(promis$global08r_v2)
+promis$global09_v2 <- as.numeric(promis$global09_v2) #self-rated social not reported in sum score
+promis$global10r_v2 <- as.numeric(promis$global10r_v2)
 
 #add up sums for physical health
-techs$gph_raw_v2 <- rowSums(techs[, c("global02_v2", "global04_v2", "global10r_v2")])
+promis$gph_raw_v2 <- rowSums(promis[, c("global02_v2", "global04_v2", "global10r_v2")])
 #add up sums for mental health
-techs$gmh_raw_v2 <- rowSums(techs[, c("global03_v2", "global06_v2", "global07r_v2", "global08r_v2", "global09_v2")])
+promis$gmh_raw_v2 <- rowSums(promis[, c("global03_v2", "global06_v2", "global07r_v2", "global08r_v2", "global09_v2")])
 
 #t scores mental health
-techs$gmh_t_v2 <- recode(techs$gmh_raw_v2, "4" = "21.2", "5" = "25.5", "6" = "28.4", "7" = "31.3", "8" = "33.8", "9" = "36.3", "10" = "38.8", "11" = "41.1", "12" = "43.5", "13" = "45.8", "14" = "48.3", "15" = "50.8", "16" = "53.3", "17" = "56.0", "18" = "59.0", "19" = "62.5", "20" = "67.6")
+promis$gmh_t_v2 <- recode(promis$gmh_raw_v2,"4" = "21.2", "5" = "25.5", "6" = "28.4", "7" = "31.3", "8" = "33.8", "9" = "36.3", "10" = "38.8", "11" = "41.1", "12" = "43.5", "13" = "45.8", "14" = "48.3", "15" = "50.8", "16" = "53.3", "17" = "56.0", "18" = "59.0", "19" = "62.5", "20" = "67.6", "21" = "70.1", "22" = "73.7")
 #t scores physical health
-techs$gph_t_v2 <- recode(techs$gph_raw_v2, "4" = "16.2", "5" = "19.9", "6" = "23.5", "7" = "26.7", "8" = "29.6", "9" = "32.4", "10" = "34.9", "11" = "37.4", "12" = "39.8", "13" = "42.3", "14" = "44.9", "15" = "50.8", "16" = "50.8", "17" = "54.1", "18" = "57.7", "19" = "61.9", "20" = "67.7")
+promis$gph_t_v2 <- recode(promis$gph_raw_v2, "4" = "16.2", "5" = "19.9", "6" = "23.5", "7" = "26.7", "8" = "29.6", "9" = "32.4", "10" = "34.9", "11" = "37.4", "12" = "39.8", "13" = "42.3", "14" = "44.9", "15" = "50.8", "16" = "50.8", "17" = "54.1", "18" = "57.7", "19" = "61.9", "20" = "67.7", "21" = "70.1", "22" = "73.7")
 
 ```
 
 
 ```{r PROMIS Cognitive Function scoring endpoint}
 #recoding variables to the right names (specific to techs redcap)
-techs$cog_func_raw_v2 <- rowSums(techs[, c("mind_v2", "memory_v2", "keep_track_v2", "concentrate_v2", "think_clearly_v2", "attention_v2", "remember_v2")])
-techs$cog_func_t_v2 <- recode(techs$cog_func_raw_v2, "8" = "22.41", "9" = "25.73", "10" = "27.45", "11" = "28.90", "12" = "30.11", "13" = "31.18", "14" = "32.15", "15" = "33.06", "16" = "33.92", "17" = "34.75", "18" = "35.56", "19" = "36.36", "20" = "37.15", "21" = "37.93", "22" = "38.71", "23" = "39.50", "24" = "40.29", "25" = "41.09", "26" = "41.90", "27" = "42.72", "28" = "43.57", "29" = "44.43", "30" = "45.31", "31" = "1 46.22", "32" = "47.17", "33" = "48.18", "34" = "49.26", "35" = "50.45", "36" = "50.45", "37" = "58.03", "38" = "59.95", "39" = "62.52", "40" = "67.09")
+promis$cog_func_raw_v2 <- rowSums(promis[, c("mind_v2", "memory_v2", "keep_track_v2", "concentrate_v2", "think_clearly_v2", "attention_v2", "remember_v2")])
 
+promis$cog_func_t_v2 <- recode(promis$cog_func_raw_v2, "8" = "22.41", "9" = "25.73", "10" = "27.45", "11" = "28.90", "12" = "30.11", "13" = "31.18", "14" = "32.15", "15" = "33.06", "16" = "33.92", "17" = "34.75", "18" = "35.56", "19" = "36.36", "20" = "37.15", "21" = "37.93", "22" = "38.71", "23" = "39.50", "24" = "40.29", "25" = "41.09", "26" = "41.90", "27" = "42.72", "28" = "43.57", "29" = "44.43", "30" = "45.31", "31" = "46.22", "32" = "47.17", "33" = "48.18", "34" = "49.26", "35" = "50.45", "36" = "50.45", "37" = "58.03", "38" = "59.95", "39" = "62.52", "40" = "67.09", "42" = "70.1")
 #sum up total global score
-techs$global_v2 <- rowSums(techs[, c("gmh_raw_v2", "gph_raw_v2", "cog_func_raw_v2")], na.rm = TRUE)
-techs$global_v1 <- rowSums(techs[, c("gmh_raw", "gph_raw", "cog_func_raw")], na.rm = TRUE)
-techs$global_v2[techs$global_v2 == 0] <- NA
+promis$global_v2 <- rowSums(promis[, c("gmh_raw_v2", "gph_raw_v2", "cog_func_raw_v2")], na.rm = TRUE)
+promis$global_v1 <- rowSums(promis[, c("gmh_raw", "gph_raw", "cog_func_raw")], na.rm = TRUE)
+promis$global_v2[promis$global_v2 == 0] <- NA
 
-techs$global_v2_t <- rowSums(techs[, c("gmh_t_v2", "gph_t_v2", "cog_func_t_v2")], na.rm = TRUE)
-techs$global_v1_t <- rowSums(techs[, c("gmh_t", "gph_t", "cog_func_t")], na.rm = TRUE)
+promis$global_v2_t <- rowSums(promis[, c("gmh_t_v2", "gph_t_v2", "cog_func_t_v2")], na.rm = TRUE)
+promis$global_v1_t <- rowSums(promis[, c("gmh_t", "gph_t", "cog_func_t")], na.rm = TRUE)
 ```
 
 ```{r}
 #plot
-techs$name <- as.factor(techs$name)
+promis$name <- as.factor(promis$name)
 #create long df 
 long_df_promis_gph <- techs %>%
-  select(name, randomization_group, gph_raw, gph_raw_v2) %>%
+  select(name, Group, gph_raw, gph_raw_v2) %>%
   gather(key = "timepoint", value = "value", gph_raw, gph_raw_v2)
 long_df_promis_gph <- long_df_promis_gph %>%
   mutate(timepoint = ifelse(timepoint == "gph_raw", "1", "2"))
-long_df_promis_global <- techs %>%
-  select(name, randomization_group, global_v1, global_v2) %>%
+long_df_promis_global <- promis %>%
+  select(name, Group, global_v1, global_v2) %>%
   gather(key = "timepoint", value = "value", global_v1, global_v2)
 long_df_promis_global <- long_df_promis_global %>%
-  mutate(timepoint = ifelse(timepoint == "global", "1", "2"))
+  mutate(timepoint = ifelse(timepoint == "global_v1", "1", "2"))
 long_df_promis_gmh <- techs %>%
-  select(name, randomization_group, gmh_raw, gmh_raw_v2) %>%
+  select(name, Group, gmh_raw, gmh_raw_v2) %>%
   gather(key = "timepoint", value = "value", gmh_raw, gmh_raw_v2)
 long_df_promis_gmh <- long_df_promis_gmh %>%
   mutate(timepoint = ifelse(timepoint == "gmh_raw", "1", "2"))
-
-long_df_promis_gmh <- techs %>%
-  select(name, randomization_group, gmh_raw, gmh_raw_v2) %>%
-  gather(key = "timepoint", value = "value", gmh_raw, gmh_raw_v2)
-long_df_promis_gmh <- long_df_promis_gmh %>%
-  mutate(timepoint = ifelse(timepoint == "gmh_raw", "1", "2"))
-
 long_df_promis_cog <- techs %>%
-  select(name, randomization_group, cog_func_raw, cog_func_raw_v2) %>%
+  select(name, Group, ≈, cog_func_raw_v2) %>%
   gather(key = "timepoint", value = "value", cog_func_raw, cog_func_raw_v2)
 long_df_promis_cog <- long_df_promis_cog %>%
   mutate(timepoint = ifelse(timepoint == "cog_func_raw", "1", "2"))
+#t scores
+long_df_promis_gph_t <- promis %>%
+  select(name, Group, gph_t, gph_t_v2) %>%
+  gather(key = "timepoint", value = "value", gph_t, gph_t_v2)
+long_df_promis_gph_t <- long_df_promis_gph_t %>%
+  mutate(timepoint = ifelse(timepoint == "gph_t", "1", "2"))
+long_df_promis_gmh_t <- promis %>%
+  select(name, Group, gmh_t, gmh_t_v2) %>%
+  gather(key = "timepoint", value = "value", gmh_t, gmh_t_v2)
+long_df_promis_gmh_t <- long_df_promis_gmh_t %>%
+  mutate(timepoint = ifelse(timepoint == "gmh_t", "1", "2"))
+long_df_promis_global_t <- promis %>%
+  select(name, Group, global_v1_t, global_v2_t) %>%
+  gather(key = "timepoint", value = "value", global_v1_t, global_v2_t)
+long_df_promis_global_t <- long_df_promis_global_t %>%
+  mutate(timepoint = ifelse(timepoint == "global", "1", "2"))
+long_df_promis_cog_t <- promis %>%
+  select(name, Group, cog_func_t, cog_func_t_v2) %>%
+  gather(key = "timepoint", value = "value", cog_func_t, cog_func_t_v2)
+long_df_promis_cog_t <- long_df_promis_cog_t %>%
+  mutate(timepoint = ifelse(timepoint == "cog_func_t", "1", "2"))
 
 long_df_promis_global <- techs %>%
-  select(name, randomization_group, global_v1, global_v2) %>%
+  select(name, Group, global_v1, global_v2) %>%
   gather(key = "timepoint", value = "value", global_v1, global_v2)
 long_df_promis_global <- long_df_promis_global %>%
   mutate(timepoint = ifelse(timepoint == "global_v1", "1", "2"))
@@ -176,31 +207,40 @@ ggplot(long_df_promis_cog, aes(x = timepoint, y = value, group = name, color = n
   labs(x = "Timepoint", y = "Value", color = "Participant ID") +
   ggtitle("Change in Cog Functioning from PROMIS for Each Timepoint")
 
-ggplot(long_df_promis_cog, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_promis_cog_t, aes(x = timepoint, y = value, group = name, color = as.factor(Group))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
   theme_bw() +
   theme_classic(base_size = 15) +
-   geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+   geom_smooth(aes(group = Group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
-  labs(title = "Cog Functioning from PROMIS", x = "Timepoint", y = "PROMIS (Cognition)")
+  labs(title = "Cog Functioning from PROMIS", x = "Timepoint", y = "T scores")
 
-ggplot(long_df_promis_gph, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_promis_gph_t, aes(x = timepoint, y = value, group = name, color = as.factor(Group))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
   theme_bw() +
   theme_classic(base_size = 15) +
-   geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+   geom_smooth(aes(group = Group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
-  labs(title = "Physical Health from PROMIS", x = "Timepoint", y = "PROMIS (Physical Health)")
+  labs(title = "Physical Health from PROMIS", x = "Timepoint", y = "T Scores")
 
-ggplot(long_df_promis_global, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_promis_global, aes(x = timepoint, y = value, group = name, color = as.factor(Group))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
   theme_bw() +
   theme_classic(base_size = 15) +
-   geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+   geom_smooth(aes(group = Group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
   scale_color_manual(values = c("black", "red")) +  # Setting color scale
   labs(title = "Global Health from PROMIS", x = "Timepoint", y = "PROMIS (Global)")
 
-ggplot(long_df_promis_global, aes(x = timepoint, y = value, group = name, color = as.factor(randomization_group))) +
+ggplot(long_df_promis_gmh_t %>% filter(!is.na(Group)), aes(x = timepoint, y = value, group = name, color = as.factor(Group))) +
+  geom_line(linetype = "dashed") +  # Set individual lines as dashed
+  theme_bw() +
+  theme_classic(base_size = 15) +
+   geom_smooth(aes(group = Group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+  scale_color_manual(values = c("black", "red")) +  # Setting color scale
+  labs(title = "Mental Health from PROMIS", x = "Timepoint", y = "T scores")
+
+
+ggplot(long_df_promis_global, aes(x = timepoint, y = value, group = name, color = as.factor(Group))) +
   geom_line(linetype = "dashed") +  # Set individual lines as dashed
   theme_bw() +
   theme_classic(base_size = 10)  +
@@ -210,7 +250,7 @@ ggplot(long_df_promis_global, aes(x = timepoint, y = value, group = name, color 
         axis.line = element_line(color = "black"),  # Specify axis line color
         axis.ticks = element_line(color = "black")) +
   scale_x_discrete(labels = c("1" = "Pre", "2" = "Post")) +
-     geom_smooth(aes(group = randomization_group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
+     geom_smooth(aes(group = Group), method = "lm", se = FALSE, size = 1.5) +  # Adding best fit line by group
   scale_color_manual(values = c("#FBAE2D", "#052844"), 
                      name = "Randomization Group",
                      labels = c("0" = "Aerobic", "1" = "Balance")) + # Setting color scale
